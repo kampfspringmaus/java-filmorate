@@ -8,6 +8,7 @@
 		<version>3.5.12</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>ru.yandex.practicum</groupId>
 	<artifactId>filmorate</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -32,6 +33,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
 	</dependencies>
 
 	<build>
