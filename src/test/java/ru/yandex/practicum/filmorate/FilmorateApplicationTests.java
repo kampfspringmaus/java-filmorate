@@ -31,14 +31,6 @@ class FilmorateApplicationTests {
         client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(2))
                 .build();
-        FilmorateApplication fa = new FilmorateApplication();
-        String[] args = {};
-        fa.main(args);
-    }
-
-    @Test
-    void contextLoads() {
-
     }
 
     @Test
