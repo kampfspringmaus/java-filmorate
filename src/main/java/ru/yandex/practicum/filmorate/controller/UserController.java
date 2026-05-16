@@ -11,17 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
 
     @PostMapping
     public User create(@RequestBody User user) {
-    /*
-    электронная почта не может быть пустой и должна содержать символ @;
-логин не может быть пустым и содержать пробелы;
-имя для отображения может быть пустым — в таком случае будет использован логин;
-дата рождения не может быть в будущем.*/
+
         if (!checkEmail(user)) {
             throw new ConditionsNotMetException("Почта не может быть пустой и должна содержать знак \"@\"");
         }
@@ -38,8 +35,6 @@ public class UserController {
         user.setId(userId);
         users.put(userId, user);
         return user;
-
-
     }
 
     @PutMapping
@@ -47,16 +42,28 @@ public class UserController {
         if (!users.keySet().contains(user.getId())) {
             throw new NotFoundException("пользователь с id " + user.getId() + " не найден");
         } else {
-
-        }
-return null;
+            User oldUserData = users.get(user.getId());
+            if (!checkEmail(user)) {
+                user.setEmail(oldUserData.getEmail());
+            }
+            if (!checkLogin(user)) {
+                user.setLogin(oldUserData.getLogin());
+            }
+            if (!checkName(user)) {
+                user.setName(user.getLogin());
+            }
+            if (!checkBirthday(user)) {
+                user.setBirthday(oldUserData.getBirthday());
+            }
+            users.put(user.getId(), user);
+            return user;
+       }
     }
 
     @GetMapping
     public Collection<User> getAll() {
         return users.values();
     }
-
 
     private int getNextId() {
         int maxId = users.keySet().stream()
@@ -68,12 +75,11 @@ return null;
 
     private boolean checkEmail(User user) {
         return user.getEmail().contains("@") && !user.getEmail().isEmpty();
-
     }
+
 
     private boolean checkLogin(User user) {
         return !user.getLogin().isEmpty() && !user.getLogin().contains(" ");
-
     }
 
     private boolean checkName(User user) {
@@ -82,7 +88,5 @@ return null;
 
     private boolean checkBirthday(User user) {
         return user.getBirthday().isBefore(LocalDate.now());
-
     }
-
 }
