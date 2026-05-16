@@ -97,7 +97,7 @@ public class FilmController {
     }
 
     private boolean checkDuration(Film film) {
-        return film.getDuration()>0;
+        return film.getDuration() > 0;
     }
 
     private int getNextId() {
