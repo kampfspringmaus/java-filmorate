@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.Duration;
 import java.time.LocalDate;
 
 /**
