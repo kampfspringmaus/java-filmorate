@@ -71,12 +71,12 @@ class FilmorateApplicationTests {
     @Test
     @Order(2)
     void createUserIsSuccessful() {
-User user1 = User.builder()
-        .email("p.antipov@yandex.practicum")
-        .login("p.antipov")
-        .name("Pavlik")
-        .birthday(LocalDate.of(1989,03,11))
-        .build();
+        User user1 = User.builder()
+                .email("p.antipov@yandex.practicum")
+                .login("p.antipov")
+                .name("Pavlik")
+                .birthday(LocalDate.of(1989, 03, 11))
+                .build();
         Gson gson = new Gson();
         String userBody = gson.toJson(user1);
         HttpRequest req = HttpRequest.newBuilder()
@@ -123,7 +123,7 @@ User user1 = User.builder()
                 .email("p.antipov@yandex.pathca")
                 .login("p.antipovs")
                 .name("Paul")
-                .birthday(LocalDate.of(1989,07,21))
+                .birthday(LocalDate.of(1989, 07, 21))
                 .build();
         Gson gson = new Gson();
         String userBody = gson.toJson(user2);
@@ -190,7 +190,7 @@ User user1 = User.builder()
                 .email("p.antipov@yandex.practicum")
                 .login("p.antipov")
                 .name("Pavlik")
-                .birthday(LocalDate.of(1989,03,11))
+                .birthday(LocalDate.of(1989, 03, 11))
                 .build();
         Gson gson = new Gson();
         String userBody = gson.toJson(user1);
@@ -214,7 +214,7 @@ User user1 = User.builder()
         Film film1 = Film.builder()
                 .name("Миска")
                 .description("Фильм о миске и том, что было дальше")
-                .releaseDate(LocalDate.of(1870,01,01))
+                .releaseDate(LocalDate.of(1870, 01, 01))
                 .duration(Duration.ofMinutes(45))
                 .build();
         Gson gson = new Gson();
@@ -241,7 +241,7 @@ User user1 = User.builder()
                 .email("p.antipov")
                 .login("p.antipov")
                 .name("Pavlik")
-                .birthday(LocalDate.of(1989,03,11))
+                .birthday(LocalDate.of(1989, 03, 11))
                 .build();
         Gson gson = new Gson();
         String userBody = gson.toJson(user1);

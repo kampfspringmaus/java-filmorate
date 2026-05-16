@@ -5,10 +5,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/films")
@@ -19,10 +21,10 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        final String COMMON_ERROR_TEXT =  "Ошибка при добавлении фильма: " + film.toString() + " ";
+        final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: " + film.toString() + " ";
         if (!checkNameBlank(film)) {
             String error = "Название фильма не может быть пустым";
-            log.info( COMMON_ERROR_TEXT + error);
+            log.info(COMMON_ERROR_TEXT + error);
             throw new ConditionsNotMetException(error);
         }
         if (!checkDescriptionLength(film)) {
@@ -43,38 +45,38 @@ public class FilmController {
         int filmId = getNextId();
         film.setId(filmId);
         films.put(filmId, film);
-        String result = "информация о фильме " + film.getId() + "добавлена: " + film.toString();
+        String result = "информация о фильме " + film.getId() + "добавлена: " + film;
         log.info(result);
         return film;
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-       if (!films.keySet().contains(film.getId())) {
-           String error = "Фильм с id " + film.getId() + " не найден";
-           log.info(error);
-           throw new NotFoundException("Фильм с id " + film.getId() + " не найден");
-       } else {
-           Film oldFilmData = films.get(film.getId());
+        if (!films.containsKey(film.getId())) {
+            String error = "Фильм с id " + film.getId() + " не найден";
+            log.info(error);
+            throw new NotFoundException("Фильм с id " + film.getId() + " не найден");
+        } else {
+            Film oldFilmData = films.get(film.getId());
 
-           if (!checkNameBlank(film)) {
-               film.setName(oldFilmData.getName());
-           }
-           if (!checkDescriptionLength(film)) {
-               film.setName(oldFilmData.getName());
-           }
-           if (!checkReleaseDate(film)) {
-               film.setReleaseDate(oldFilmData.getReleaseDate());
-           }
-           if (!checkDuration(film)) {
-               film.setDuration(oldFilmData.getDuration());
-           }
-           films.put(film.getId(), film);
-           String result = "информация о фильме " + film.getId() + "изменена. предыдущие данные: " + oldFilmData.toString() +
-                   " новые данные: " + film.toString();
-           log.info(result);
-           return film;
-       }
+            if (!checkNameBlank(film)) {
+                film.setName(oldFilmData.getName());
+            }
+            if (!checkDescriptionLength(film)) {
+                film.setName(oldFilmData.getName());
+            }
+            if (!checkReleaseDate(film)) {
+                film.setReleaseDate(oldFilmData.getReleaseDate());
+            }
+            if (!checkDuration(film)) {
+                film.setDuration(oldFilmData.getDuration());
+            }
+            films.put(film.getId(), film);
+            String result = "информация о фильме " + film.getId() + "изменена. предыдущие данные: " + oldFilmData.toString() +
+                    " новые данные: " + film;
+            log.info(result);
+            return film;
+        }
     }
 
     @GetMapping

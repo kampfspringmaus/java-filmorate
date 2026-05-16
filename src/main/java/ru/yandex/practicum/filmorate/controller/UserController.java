@@ -33,7 +33,7 @@ public class UserController {
             throw new ConditionsNotMetException(error);
         }
         if (!checkName(user)) {
-            log.info("У пользователя " + user.toString() + " пустое имя. Вместо имени будет подставлен логин");
+            log.info("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
             user.setName(user.getLogin());
         }
         if (!checkBirthday(user)) {
@@ -44,14 +44,14 @@ public class UserController {
         int userId = getNextId();
         user.setId(userId);
         users.put(userId, user);
-        String result = "информация о пользователе " + user.getId() + "добавлена: " + user.toString();
+        String result = "информация о пользователе " + user.getId() + "добавлена: " + user;
         log.info(result);
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
-        if (!users.keySet().contains(user.getId())) {
+        if (!users.containsKey(user.getId())) {
             String error = "пользователь с id " + user.getId() + " не найден";
             log.info(error);
             throw new NotFoundException("пользователь с id " + user.getId() + " не найден");
@@ -71,7 +71,7 @@ public class UserController {
             }
             users.put(user.getId(), user);
             String result = "информация о пользователе " + user.getId() + "изменена. предыдущие данные: " + oldUserData.toString() +
-                    " новые данные: " + user.toString();
+                    " новые данные: " + user;
             log.info(result);
             return user;
         }
@@ -103,10 +103,7 @@ public class UserController {
         if (user.getName() == null) {
             return false;
         }
-        if (user.getName().isBlank()) {
-            return false;
-        }
-        return true;
+        return !user.getName().isBlank();
     }
 
     private boolean checkBirthday(User user) {
