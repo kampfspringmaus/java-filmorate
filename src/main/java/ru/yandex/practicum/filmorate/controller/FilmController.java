@@ -17,7 +17,7 @@ import java.util.Map;
 public class FilmController {
 
     private final Map<Integer, Film> films = new HashMap<>();
-    private final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
+    private final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
 
     @PostMapping
     public Film create(@RequestBody Film film) {
@@ -93,7 +93,7 @@ public class FilmController {
     }
 
     private boolean checkReleaseDate(Film film) {
-        return film.getReleaseDate().isAfter(FIRST_FILM_DATE);
+        return film.getReleaseDate().isAfter(firstFilmDate);
     }
 
     private boolean checkDuration(Film film) {
