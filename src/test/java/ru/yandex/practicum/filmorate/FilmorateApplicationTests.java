@@ -29,7 +29,7 @@ class FilmorateApplicationTests {
     @BeforeAll
     static void beforeAll() throws Exception {
         client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(2))
+                .connectTimeout(Duration.ofSeconds(5))
                 .build();
     }
 
@@ -40,7 +40,7 @@ class FilmorateApplicationTests {
                 .name("Миска")
                 .description("Фильм о миске и том, что было дальше")
                 .releaseDate(LocalDate.now())
-                .duration(Duration.ofMinutes(45))
+                .duration(45)
                 .build();
         Gson gson = new Gson();
         String filmBody = gson.toJson(film1);
@@ -55,7 +55,7 @@ class FilmorateApplicationTests {
                     "параметрами должно проходить успешно");
 
         } catch (IOException | InterruptedException e) {
-            System.out.println("createFilmIsSuccessful" + e.getMessage());
+            System.out.println("createFilmIsSuccessful" + e.getMessage() + e.toString());
         }
     }
 
@@ -135,7 +135,7 @@ class FilmorateApplicationTests {
                 .build();
 
         try {
-            HttpResponse<String> response2 = client.send(req,
+            HttpResponse<String> response2 = client.send(req2,
                     HttpResponse.BodyHandlers.ofString());
             JsonArray userArray = JsonParser.parseString(response2.body()).getAsJsonArray();
             List<User> userList = gson.fromJson(userArray, List.class);
@@ -156,7 +156,7 @@ class FilmorateApplicationTests {
                 .name("Миска")
                 .description("Фильм о миске и том, что было дальше")
                 .releaseDate(LocalDate.now())
-                .duration(Duration.ofMinutes(45))
+                .duration(45)
                 .build();
         Gson gson = new Gson();
         String filmBody = gson.toJson(film1);
@@ -207,7 +207,7 @@ class FilmorateApplicationTests {
                 .name("Миска")
                 .description("Фильм о миске и том, что было дальше")
                 .releaseDate(LocalDate.of(1870, 01, 01))
-                .duration(Duration.ofMinutes(45))
+                .duration(45)
                 .build();
         Gson gson = new Gson();
         String filmBody = gson.toJson(film1);
