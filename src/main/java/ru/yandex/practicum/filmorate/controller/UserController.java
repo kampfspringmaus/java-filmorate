@@ -17,19 +17,19 @@ import java.util.Map;
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
+    private String error;
 
     @PostMapping
     public User create(@RequestBody User user) {
-        final String COMMON_ERROR_TEXT = "Ошибка при добавлении пользователя: " + user.toString() + " ";
 
         if (!checkEmail(user)) {
-            String error = "Почта не может быть пустой и должна содержать знак \"@\"";
-            log.info(COMMON_ERROR_TEXT + error);
+            error = "Почта не может быть пустой и должна содержать знак \"@\"";
+            log.info(getErrorText(user) + error);
             throw new ConditionsNotMetException(error);
         }
         if (!checkLogin(user)) {
-            String error = "логин не может быть пустым или содержать пробелы";
-            log.info(COMMON_ERROR_TEXT + error);
+            error = "логин не может быть пустым или содержать пробелы";
+            log.info(getErrorText(user) + error);
             throw new ConditionsNotMetException(error);
         }
         if (!checkName(user)) {
@@ -37,8 +37,8 @@ public class UserController {
             user.setName(user.getLogin());
         }
         if (!checkBirthday(user)) {
-            String error = "дата рождения не может быть в будущем";
-            log.info(COMMON_ERROR_TEXT + error);
+            error = "дата рождения не может быть в будущем";
+            log.info(getErrorText(user) + error);
             throw new ConditionsNotMetException(error);
         }
         int userId = getNextId();
@@ -55,6 +55,9 @@ public class UserController {
             String error = "пользователь с id " + user.getId() + " не найден";
             log.info(error);
             throw new NotFoundException("пользователь с id " + user.getId() + " не найден");
+        } else if (user.getEmail() == null && user.getLogin() == null && user.getName() == null
+                && user.getBirthday() == null) {
+            return users.get(user.getId());
         } else {
             User oldUserData = users.get(user.getId());
             if (!checkEmail(user)) {
@@ -70,8 +73,7 @@ public class UserController {
                 user.setBirthday(oldUserData.getBirthday());
             }
             users.put(user.getId(), user);
-            String result = "информация о пользователе " + user.getId() + "изменена. предыдущие данные: " + oldUserData.toString() +
-                    " новые данные: " + user;
+            String result = "информация о пользователе " + user.getId() + "изменена. предыдущие данные: " + oldUserData.toString() + " новые данные: " + user;
             log.info(result);
             return user;
         }
@@ -83,10 +85,7 @@ public class UserController {
     }
 
     private int getNextId() {
-        int maxId = users.keySet().stream()
-                .mapToInt(Integer::intValue)
-                .max()
-                .orElse(0);
+        int maxId = users.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
         return ++maxId;
     }
 
@@ -108,5 +107,9 @@ public class UserController {
 
     private boolean checkBirthday(User user) {
         return user.getBirthday().isBefore(LocalDate.now());
+    }
+
+    private String getErrorText(User user) {
+        return "Ошибка при добавлении пользователя: " + user.toString() + " ";
     }
 }

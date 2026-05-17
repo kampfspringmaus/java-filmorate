@@ -18,28 +18,28 @@ public class FilmController {
 
     private final Map<Integer, Film> films = new HashMap<>();
     private final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
-
+    private String error;
     @PostMapping
     public Film create(@RequestBody Film film) {
-        final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: " + film.toString() + " ";
+        //final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: " + film.toString() + " ";
         if (!checkNameBlank(film)) {
-            String error = "Название фильма не может быть пустым";
-            log.info(COMMON_ERROR_TEXT + error);
+            error = "Название фильма не может быть пустым";
+            log.info(getErrorText(film) + error);
             throw new ConditionsNotMetException(error);
         }
         if (!checkDescriptionLength(film)) {
-            String error = "Слишком длинное название фильма";
-            log.info(COMMON_ERROR_TEXT + error);
+            error = "Слишком длинное название фильма";
+            log.info(getErrorText(film) + error);
             throw new ConditionsNotMetException(error);
         }
         if (!checkReleaseDate(film)) {
-            String error = "Дата выхода фильма превосходит всё известное археологам";
-            log.info(COMMON_ERROR_TEXT + error);
+            error = "Дата выхода фильма превосходит всё известное археологам";
+            log.info(getErrorText(film) + error);
             throw new ConditionsNotMetException(error);
         }
         if (!checkDuration(film)) {
-            String error = "Длительность фильма не может быть отрицательной";
-            log.info(COMMON_ERROR_TEXT + error);
+            error = "Длительность фильма не может быть отрицательной";
+            log.info(getErrorText(film) + error);
             throw new ConditionsNotMetException(error);
         }
         int filmId = getNextId();
@@ -53,9 +53,12 @@ public class FilmController {
     @PutMapping
     public Film update(@RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
-            String error = "Фильм с id " + film.getId() + " не найден";
+            error = "Фильм с id " + film.getId() + " не найден";
             log.info(error);
             throw new NotFoundException("Фильм с id " + film.getId() + " не найден");
+        } else if (film.getName() == null && film.getDuration() == null && film.getReleaseDate() == null
+        && film.getDescription() == null) {
+            return films.get(film.getId());
         } else {
             Film oldFilmData = films.get(film.getId());
 
@@ -106,5 +109,9 @@ public class FilmController {
                 .max()
                 .orElse(0);
         return ++maxId;
+    }
+
+    private String getErrorText(Film film) {
+        return "Ошибка при добавлении фильма: " + film.toString() + " ";
     }
 }
