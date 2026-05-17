@@ -25,7 +25,7 @@ class FilmorateApplicationTests {
     private static HttpClient client;
     private AssertionError lastAssertionError;
     Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (src, typeOfSrc, context) -> new JsonPrimitive(src.toString())).registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, typeOfT, context) -> LocalDate.parse(json.getAsString())).setPrettyPrinting().create();
-    private final static String SuccessTestPreText = "Тест выполнился успешно ";
+    private static final String SuccessTestPreText = "Тест выполнился успешно ";
 
     @BeforeAll
     static void beforeAll() throws Exception {
