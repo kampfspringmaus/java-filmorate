@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -19,6 +20,7 @@ public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
     private String error;
+
     @PostMapping
     public Film create(@RequestBody Film film) {
         //final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: " + film.toString() + " ";
@@ -92,7 +94,7 @@ public class FilmController {
     }
 
     private boolean checkDescriptionLength(Film film) {
-        return film.getDescription().length() <= 200;
+        return Optional.ofNullable(film.getDescription()).map((String::length)).orElse(0) <= 200;
     }
 
     private boolean checkReleaseDate(Film film) {
