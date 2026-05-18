@@ -21,42 +21,42 @@ public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
 
-    private final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: %s %s";
-    private final String SUCCESSFUL_CREATION = "информация о фильме %s добавлена: %s";
-    private final String SUCESSFUL_UPDATE = "информация о фильме %s изменена. Новые данные: %s";
+    private final String commonErrorText = "Ошибка при добавлении фильма: %s %s";
+    private final String successfulCreation = "информация о фильме %s добавлена: %s";
+    private final String successfulUpdate = "информация о фильме %s изменена. Новые данные: %s";
 
     @PostMapping
     public Film create(@RequestBody Film film) {
 
 
         if (!checkNameBlank(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.EMPTY_NAME));
-            throw new ConditionsNotMetException(FilmErrorMessages.EMPTY_NAME);
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.emptyFilmName));
+            throw new ConditionsNotMetException(FilmErrorMessages.emptyFilmName);
         }
         if (!checkDescriptionLength(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.TOO_LONG_DESCRIPTION));
-            throw new ConditionsNotMetException(FilmErrorMessages.TOO_LONG_DESCRIPTION);
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooLongDescription));
+            throw new ConditionsNotMetException(FilmErrorMessages.tooLongDescription);
         }
         if (!checkReleaseDate(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.TOO_OLD_FILM));
-            throw new ConditionsNotMetException(FilmErrorMessages.TOO_OLD_FILM);
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooOldFilm));
+            throw new ConditionsNotMetException(FilmErrorMessages.tooOldFilm);
         }
         if (!checkDuration(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.NEGATIVE_FILM_DURATION));
-            throw new ConditionsNotMetException(FilmErrorMessages.NEGATIVE_FILM_DURATION);
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.negativeFilmDuration));
+            throw new ConditionsNotMetException(FilmErrorMessages.negativeFilmDuration);
         }
         int filmId = getNextId();
         film.setId(filmId);
         films.put(filmId, film);
-        log.info(String.format(SUCCESSFUL_CREATION, film.getId(), film));
+        log.info(String.format(successfulCreation, film.getId(), film));
         return film;
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
-            log.info(String.format(FilmErrorMessages.FILM_NOT_FOUND, film.getId()));
-            throw new NotFoundException(String.format(FilmErrorMessages.FILM_NOT_FOUND, film.getId()));
+            log.info(String.format(FilmErrorMessages.filmNotFound, film.getId()));
+            throw new NotFoundException(String.format(FilmErrorMessages.filmNotFound, film.getId()));
         } else if (film.getName() == null && film.getDuration() == null && film.getReleaseDate() == null
                 && film.getDescription() == null) {
             return films.get(film.getId());
@@ -75,7 +75,7 @@ public class FilmController {
             if (checkDuration(film)) {
                 oldFilmData.setDuration(film.getDuration());
             }
-            log.info(String.format(SUCESSFUL_UPDATE, oldFilmData.getId(), oldFilmData));
+            log.info(String.format(successfulUpdate, oldFilmData.getId(), oldFilmData));
             return film;
         }
     }

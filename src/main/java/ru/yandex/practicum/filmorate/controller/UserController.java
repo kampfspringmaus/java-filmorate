@@ -18,43 +18,43 @@ import java.util.Map;
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
-    private final String COMMON_ERROR_TEXT = "Ошибка при добавлении пользователя: %s %s";
-    private final String SUCCESSFUL_CREATION = "информация о пользователе %s добавлена: %s";
-    private final String SUCESSFUL_UPDATE = "информация о пользователе %s изменена. Новые данные: %s";
-    private final String USER_NOT_FOUND = "пользователь с id %s не найден";
+    private final String commonErrorText = "Ошибка при добавлении пользователя: %s %s";
+    private final String successfulCreation = "информация о пользователе %s добавлена: %s";
+    private final String successfulUpdate = "информация о пользователе %s изменена. Новые данные: %s";
+    private final String userNotFound = "пользователь с id %s не найден";
 
     @PostMapping
     public User create(@RequestBody User user) {
 
         if (!checkEmail(user)) {
-            log.info(String.format(COMMON_ERROR_TEXT, user, UserErrorMessages.BLANK_OR_WRONG_EMAIL));
-            throw new ConditionsNotMetException(UserErrorMessages.BLANK_OR_WRONG_EMAIL);
+            log.info(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
+            throw new ConditionsNotMetException(UserErrorMessages.blankOrWrongEmail);
         }
         if (!checkLogin(user)) {
-            log.info(String.format(COMMON_ERROR_TEXT, user, UserErrorMessages.EMPTY_OR_SPACES_LOGIN));
-            throw new ConditionsNotMetException(UserErrorMessages.EMPTY_OR_SPACES_LOGIN);
+            log.info(String.format(commonErrorText, user, UserErrorMessages.emptyOrSpacesLogin));
+            throw new ConditionsNotMetException(UserErrorMessages.emptyOrSpacesLogin);
         }
         if (!checkName(user)) {
             log.info("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
             user.setName(user.getLogin());
         }
         if (!checkBirthday(user)) {
-            log.info(String.format(COMMON_ERROR_TEXT, user, UserErrorMessages.BIRTHDAY_IN_FUTURE));
-            throw new ConditionsNotMetException(UserErrorMessages.BIRTHDAY_IN_FUTURE);
+            log.info(String.format(commonErrorText, user, UserErrorMessages.birthdayInFuture));
+            throw new ConditionsNotMetException(UserErrorMessages.birthdayInFuture);
         }
         int userId = getNextId();
         user.setId(userId);
         users.put(userId, user);
         String result = "информация о пользователе " + user.getId() + "добавлена: " + user;
-        log.info(String.format(SUCCESSFUL_CREATION, user.getId(), user));
+        log.info(String.format(successfulCreation, user.getId(), user));
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
         if (!users.containsKey(user.getId())) {
-            log.info(String.format(USER_NOT_FOUND, user.getId()));
-            throw new NotFoundException(String.format(USER_NOT_FOUND, user.getId()));
+            log.info(String.format(userNotFound, user.getId()));
+            throw new NotFoundException(String.format(userNotFound, user.getId()));
         } else if (user.getEmail() == null && user.getLogin() == null && user.getName() == null
                 && user.getBirthday() == null) {
             return users.get(user.getId());
@@ -72,7 +72,7 @@ public class UserController {
             if (checkBirthday(user)) {
                 oldUserData.setBirthday(user.getBirthday());
             }
-            log.info(String.format(SUCESSFUL_UPDATE, user.getId(), user));
+            log.info(String.format(successfulUpdate, user.getId(), user));
             return user;
         }
     }
