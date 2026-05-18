@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exception.FilmErrorMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -19,67 +20,62 @@ public class FilmController {
 
     private final Map<Integer, Film> films = new HashMap<>();
     private final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
-    private String error;
+
+    private final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: %s %s";
+    private final String SUCCESSFUL_CREATION = "информация о фильме %s добавлена: %s";
+    private final String SUCESSFUL_UPDATE = "информация о фильме %s изменена. Новые данные: %s";
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        //final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: " + film.toString() + " ";
+
+
         if (!checkNameBlank(film)) {
-            error = "Название фильма не может быть пустым";
-            log.info(getErrorText(film) + error);
-            throw new ConditionsNotMetException(error);
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.EMPTY_NAME));
+            throw new ConditionsNotMetException(FilmErrorMessages.EMPTY_NAME);
         }
         if (!checkDescriptionLength(film)) {
-            error = "Слишком длинное название фильма";
-            log.info(getErrorText(film) + error);
-            throw new ConditionsNotMetException(error);
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.TOO_LONG_DESCRIPTION));
+            throw new ConditionsNotMetException(FilmErrorMessages.TOO_LONG_DESCRIPTION);
         }
         if (!checkReleaseDate(film)) {
-            error = "Дата выхода фильма превосходит всё известное археологам";
-            log.info(getErrorText(film) + error);
-            throw new ConditionsNotMetException(error);
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.TOO_OLD_FILM));
+            throw new ConditionsNotMetException(FilmErrorMessages.TOO_OLD_FILM);
         }
         if (!checkDuration(film)) {
-            error = "Длительность фильма не может быть отрицательной";
-            log.info(getErrorText(film) + error);
-            throw new ConditionsNotMetException(error);
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.NEGATIVE_FILM_DURATION));
+            throw new ConditionsNotMetException(FilmErrorMessages.NEGATIVE_FILM_DURATION);
         }
         int filmId = getNextId();
         film.setId(filmId);
         films.put(filmId, film);
-        String result = "информация о фильме " + film.getId() + "добавлена: " + film;
-        log.info(result);
+        log.info(String.format(SUCCESSFUL_CREATION, film.getId(), film));
         return film;
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
-            error = "Фильм с id " + film.getId() + " не найден";
-            log.info(error);
-            throw new NotFoundException("Фильм с id " + film.getId() + " не найден");
+            log.info(String.format(FilmErrorMessages.FILM_NOT_FOUND, film.getId()));
+            throw new NotFoundException(String.format(FilmErrorMessages.FILM_NOT_FOUND, film.getId()));
         } else if (film.getName() == null && film.getDuration() == null && film.getReleaseDate() == null
-        && film.getDescription() == null) {
+                && film.getDescription() == null) {
             return films.get(film.getId());
         } else {
             Film oldFilmData = films.get(film.getId());
 
-            if (!checkNameBlank(film)) {
-                film.setName(oldFilmData.getName());
+            if (checkNameBlank(film)) {
+                oldFilmData.setName(film.getName());
             }
-            if (!checkDescriptionLength(film)) {
-                film.setName(oldFilmData.getName());
+            if (checkDescriptionLength(film)) {
+                oldFilmData.setName(film.getName());
             }
-            if (!checkReleaseDate(film)) {
-                film.setReleaseDate(oldFilmData.getReleaseDate());
+            if (checkReleaseDate(film)) {
+                oldFilmData.setReleaseDate(film.getReleaseDate());
             }
-            if (!checkDuration(film)) {
-                film.setDuration(oldFilmData.getDuration());
+            if (checkDuration(film)) {
+                oldFilmData.setDuration(film.getDuration());
             }
-            films.put(film.getId(), film);
-            String result = "информация о фильме " + film.getId() + "изменена. предыдущие данные: " + oldFilmData.toString() +
-                    " новые данные: " + film;
-            log.info(result);
+            log.info(String.format(SUCESSFUL_UPDATE, oldFilmData.getId(), oldFilmData));
             return film;
         }
     }
@@ -111,9 +107,5 @@ public class FilmController {
                 .max()
                 .orElse(0);
         return ++maxId;
-    }
-
-    private String getErrorText(Film film) {
-        return "Ошибка при добавлении фильма: " + film.toString() + " ";
     }
 }

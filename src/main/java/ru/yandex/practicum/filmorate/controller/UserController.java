@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserErrorMessages;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -17,64 +18,61 @@ import java.util.Map;
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
-    private String error;
+    private final String COMMON_ERROR_TEXT = "Ошибка при добавлении пользователя: %s %s";
+    private final String SUCCESSFUL_CREATION = "информация о пользователе %s добавлена: %s";
+    private final String SUCESSFUL_UPDATE = "информация о пользователе %s изменена. Новые данные: %s";
+    private final String USER_NOT_FOUND = "пользователь с id %s не найден";
 
     @PostMapping
     public User create(@RequestBody User user) {
 
         if (!checkEmail(user)) {
-            error = "Почта не может быть пустой и должна содержать знак \"@\"";
-            log.info(getErrorText(user) + error);
-            throw new ConditionsNotMetException(error);
+            log.info(String.format(COMMON_ERROR_TEXT, user, UserErrorMessages.BLANK_OR_WRONG_EMAIL));
+            throw new ConditionsNotMetException(UserErrorMessages.BLANK_OR_WRONG_EMAIL);
         }
         if (!checkLogin(user)) {
-            error = "логин не может быть пустым или содержать пробелы";
-            log.info(getErrorText(user) + error);
-            throw new ConditionsNotMetException(error);
+            log.info(String.format(COMMON_ERROR_TEXT, user, UserErrorMessages.EMPTY_OR_SPACES_LOGIN));
+            throw new ConditionsNotMetException(UserErrorMessages.EMPTY_OR_SPACES_LOGIN);
         }
         if (!checkName(user)) {
             log.info("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
             user.setName(user.getLogin());
         }
         if (!checkBirthday(user)) {
-            error = "дата рождения не может быть в будущем";
-            log.info(getErrorText(user) + error);
-            throw new ConditionsNotMetException(error);
+            log.info(String.format(COMMON_ERROR_TEXT, user, UserErrorMessages.BIRTHDAY_IN_FUTURE));
+            throw new ConditionsNotMetException(UserErrorMessages.BIRTHDAY_IN_FUTURE);
         }
         int userId = getNextId();
         user.setId(userId);
         users.put(userId, user);
         String result = "информация о пользователе " + user.getId() + "добавлена: " + user;
-        log.info(result);
+        log.info(String.format(SUCCESSFUL_CREATION, user.getId(), user));
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
         if (!users.containsKey(user.getId())) {
-            String error = "пользователь с id " + user.getId() + " не найден";
-            log.info(error);
-            throw new NotFoundException("пользователь с id " + user.getId() + " не найден");
+            log.info(String.format(USER_NOT_FOUND, user.getId()));
+            throw new NotFoundException(String.format(USER_NOT_FOUND, user.getId()));
         } else if (user.getEmail() == null && user.getLogin() == null && user.getName() == null
                 && user.getBirthday() == null) {
             return users.get(user.getId());
         } else {
             User oldUserData = users.get(user.getId());
-            if (!checkEmail(user)) {
-                user.setEmail(oldUserData.getEmail());
+            if (checkEmail(user)) {
+                oldUserData.setEmail(user.getEmail());
             }
-            if (!checkLogin(user)) {
-                user.setLogin(oldUserData.getLogin());
+            if (checkLogin(user)) {
+                oldUserData.setLogin(user.getLogin());
             }
-            if (!checkName(user)) {
-                user.setName(user.getLogin());
+            if (checkName(user)) {
+                oldUserData.setName(user.getLogin());
             }
-            if (!checkBirthday(user)) {
-                user.setBirthday(oldUserData.getBirthday());
+            if (checkBirthday(user)) {
+                oldUserData.setBirthday(user.getBirthday());
             }
-            users.put(user.getId(), user);
-            String result = "информация о пользователе " + user.getId() + "изменена. предыдущие данные: " + oldUserData.toString() + " новые данные: " + user;
-            log.info(result);
+            log.info(String.format(SUCESSFUL_UPDATE, user.getId(), user));
             return user;
         }
     }
@@ -107,9 +105,5 @@ public class UserController {
 
     private boolean checkBirthday(User user) {
         return user.getBirthday().isBefore(LocalDate.now());
-    }
-
-    private String getErrorText(User user) {
-        return "Ошибка при добавлении пользователя: " + user.toString() + " ";
     }
 }
