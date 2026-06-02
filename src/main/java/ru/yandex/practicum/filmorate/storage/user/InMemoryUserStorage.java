@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
@@ -11,6 +12,8 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+@Data
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage{
@@ -75,6 +78,11 @@ public class InMemoryUserStorage implements UserStorage{
             log.info(String.format(successfulUpdate, user.getId(), user));
             return user;
         }
+    }
+
+    @Override
+    public boolean userIsPresent(Integer userId) {
+        return users.containsKey(userId);
     }
 
     private int getNextId() {

@@ -8,8 +8,14 @@ import java.util.Collection;
 public interface FilmStorage {
     Collection<Film> getAll();
 
-    Film create(@RequestBody Film film);
+    Film create(Film film);
 
     Film update(Film film);
+
+    boolean filmIsPresent(Integer filmId);
+
+    Film get(Integer filmId);
+
+
 }
 
