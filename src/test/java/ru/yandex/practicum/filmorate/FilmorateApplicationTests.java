@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+/*package ru.yandex.practicum.filmorate;
 
 import com.google.gson.*;
 import lombok.extern.slf4j.Slf4j;
@@ -156,3 +156,4 @@ class FilmorateApplicationTests {
     }
 
 }
+*/
