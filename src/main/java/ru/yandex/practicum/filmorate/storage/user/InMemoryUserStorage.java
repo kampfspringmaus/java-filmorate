@@ -85,6 +85,11 @@ public class InMemoryUserStorage implements UserStorage{
         return users.containsKey(userId);
     }
 
+    @Override
+    public User get(Integer userId) {
+        return users.get(userId);
+    }
+
     private int getNextId() {
         int maxId = users.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
         return ++maxId;

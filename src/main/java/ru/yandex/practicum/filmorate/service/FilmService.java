@@ -15,7 +15,7 @@ public class FilmService {
     private FilmStorage filmStorage;
     private UserStorage userStorage;
 
-    public Film likeAction(Integer filmId, Integer userId, LikeActions action) {
+    /*public Film likeAction(Integer filmId, Integer userId, LikeActions action) {
         if (!filmStorage.filmIsPresent(filmId)) {
             throw new WrongArgumentException("Нет такого фильма");
         }
@@ -35,12 +35,40 @@ public class FilmService {
 
         return result;
 
+    }*/
+
+    public Film putLike(Integer filmId, Integer userId) {
+        if (!filmStorage.filmIsPresent(filmId)) {
+            throw new WrongArgumentException("Нет такого фильма");
+        }
+
+        if (!userStorage.userIsPresent(userId)) {
+            throw new WrongArgumentException("Нет такого пользователя");
+        }
+
+        Film result = filmStorage.get(filmId);
+        result.getLikes().add(userId);
+        return result;
     }
 
-    public Collection<Film> getTopRatedFilms() {
+    public Film cancelLike(Integer filmId, Integer userId){
+        if (!filmStorage.filmIsPresent(filmId)) {
+            throw new WrongArgumentException("Нет такого фильма");
+        }
+
+        if (!userStorage.userIsPresent(userId)) {
+            throw new WrongArgumentException("Нет такого пользователя");
+        }
+
+        Film result = filmStorage.get(filmId);
+        result.getLikes().remove(userId);
+        return result;
+    }
+
+    public Collection<Film> getTopRatedFilms(Integer count) {
         Collection<Film> result = filmStorage.getAll().stream()
                 .sorted(Comparator.comparing(film -> film.getLikes().size()))
-                .limit(10)
+                .limit(count)
                 .collect(Collectors.toList());
 
         return result;

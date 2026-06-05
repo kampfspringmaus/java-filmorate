@@ -39,16 +39,29 @@ public class FilmController {
        return inMemoryFilmStorage.update(film);
     }
 
-    @PutMapping("/Likes")
+    /* @PutMapping("/Likes")
     public Film likeAction(@RequestParam Integer filmId, @RequestParam Integer userId,
                            @RequestParam LikeActions action) {
         return filmService.likeAction(filmId, userId, action);
 
-    }
+    }*/
 
-    @GetMapping("/topRatedFilms")
-    public Collection<Film> getTopRatedFilms() {
-        return filmService.getTopRatedFilms();
+
+
+    //PUT /films/{id}/like/{userId}
+    @PutMapping("/{id}/like/{userId}")
+    public Film putLike(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {
+        return filmService.putLike(filmId, userId);
+    }
+    //DELETE /films/{id}/like/{userId}
+@DeleteMapping("/{id}/like/{userId}")
+public Film cancelLike(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {
+        return filmService.cancelLike(filmId, userId);
+}
+    //GET /films/popular?count={count}
+    @GetMapping("/popular")
+    public Collection<Film> getTopRatedFilms(@RequestParam(defaultValue = "10") Integer count ) {
+        return filmService.getTopRatedFilms(count);
     }
 
 }
