@@ -10,6 +10,6 @@
 
     <!-- Корневой логгер с уровнем INFO и аппендером FILE -->
     <root level="info">
-        <appender-ref ref="FILE" />
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>

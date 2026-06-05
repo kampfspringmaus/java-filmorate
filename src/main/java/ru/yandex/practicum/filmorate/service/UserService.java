@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.WrongArgumentException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -14,6 +16,11 @@ import java.util.stream.Collectors;
 public class UserService {
     UserStorage userStorage;
 
+    @Autowired
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
     public User addFriend(Integer user1, Integer user2) {
         if (user1.equals(user2)) {
             throw new WrongArgumentException("Пользователь не может добавить в друзья сам себя");
@@ -22,7 +29,7 @@ public class UserService {
             throw new WrongArgumentException("Значение ID пользователя не может быть пустым");
         }
         if (!userStorage.userIsPresent(user1) || !userStorage.userIsPresent(user2)) {
-            throw new WrongArgumentException("как минимум один из пользователей не существует");
+            throw new NotFoundException("как минимум один из пользователей не существует");
         }
         if (user1 <= 0 || user2 <= 0) {
             throw new WrongArgumentException("ID пользователя должно быть положительным числом");
@@ -41,7 +48,7 @@ public class UserService {
             throw new WrongArgumentException("Значение ID пользователя не может быть пустым");
         }
         if (!userStorage.userIsPresent(user1) || !userStorage.userIsPresent(user2)) {
-            throw new WrongArgumentException("как минимум один из пользователей не существует");
+            throw new NotFoundException("как минимум один из пользователей не существует");
         }
         if (user1 <= 0 || user2 <= 0) {
             throw new WrongArgumentException("ID пользователя должно быть положительным числом");
@@ -53,6 +60,10 @@ public class UserService {
     }
 
     public Collection<User> getFriendsList(Integer user) {
+        if (!userStorage.userIsPresent(user)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
         Set<Integer> userFriends = userStorage.get(user).getFriendsList();
 
         Collection<User> result = new ArrayList<>();

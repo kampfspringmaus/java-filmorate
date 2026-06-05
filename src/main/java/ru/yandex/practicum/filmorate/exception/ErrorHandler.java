@@ -15,17 +15,19 @@ public class ErrorHandler {
     400 — если ошибка валидации: ValidationException;
 
      */
-    @ExceptionHandler
+    @ExceptionHandler({WrongArgumentException.class, ConditionsNotMetException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationError(final WrongArgumentException e) {
+    public ErrorResponse handleValidationError(final RuntimeException e) {
         return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
+
     //404 — для всех ситуаций, если искомый объект не найден;
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundError(final NotFoundException e) {
         return new ErrorResponse("Объект не найден", e.getMessage());
     }
+
     //500 — если возникло исключение.
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

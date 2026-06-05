@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.WrongArgumentException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -12,38 +13,22 @@ import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
-    /*public Film likeAction(Integer filmId, Integer userId, LikeActions action) {
-        if (!filmStorage.filmIsPresent(filmId)) {
-            throw new WrongArgumentException("Нет такого фильма");
-        }
-
-        if (!userStorage.userIsPresent(userId)) {
-            throw new WrongArgumentException("Нет такого пользователя");
-        }
-
-        Film result = filmStorage.get(filmId);
-        if (action == LikeActions.ADD) {
-            result.getLikes().add(userId);
-        } else if (action == LikeActions.REMOVE) {
-            result.getLikes().remove(userId);
-        } else {
-            throw new WrongArgumentException("Неизвестная команда действия с like`ом");
-        }
-
-        return result;
-
-    }*/
+    @Autowired
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
 
     public Film putLike(Integer filmId, Integer userId) {
         if (!filmStorage.filmIsPresent(filmId)) {
-            throw new WrongArgumentException("Нет такого фильма");
+            throw new NotFoundException("Нет такого фильма");
         }
 
         if (!userStorage.userIsPresent(userId)) {
-            throw new WrongArgumentException("Нет такого пользователя");
+            throw new NotFoundException("Нет такого пользователя");
         }
 
         Film result = filmStorage.get(filmId);
@@ -51,13 +36,13 @@ public class FilmService {
         return result;
     }
 
-    public Film cancelLike(Integer filmId, Integer userId){
+    public Film cancelLike(Integer filmId, Integer userId) {
         if (!filmStorage.filmIsPresent(filmId)) {
-            throw new WrongArgumentException("Нет такого фильма");
+            throw new NotFoundException("Нет такого фильма");
         }
 
         if (!userStorage.userIsPresent(userId)) {
-            throw new WrongArgumentException("Нет такого пользователя");
+            throw new NotFoundException("Нет такого пользователя");
         }
 
         Film result = filmStorage.get(filmId);
@@ -67,12 +52,9 @@ public class FilmService {
 
     public Collection<Film> getTopRatedFilms(Integer count) {
         Collection<Film> result = filmStorage.getAll().stream()
-                .sorted(Comparator.comparing(film -> film.getLikes().size()))
+                .sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
                 .limit(count)
                 .collect(Collectors.toList());
-
         return result;
     }
-
-
 }

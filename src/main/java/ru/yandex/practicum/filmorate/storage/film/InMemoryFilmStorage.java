@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Data
 @Slf4j
@@ -51,6 +48,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         int filmId = getNextId();
         film.setId(filmId);
+        if (film.getLikes() == null) {
+            film.setLikes(new HashSet<>());
+        }
         films.put(filmId, film);
         log.info(String.format(successfulCreation, film.getId(), film));
         return film;

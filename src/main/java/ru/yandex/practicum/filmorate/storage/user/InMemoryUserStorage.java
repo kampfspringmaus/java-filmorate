@@ -11,12 +11,13 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 @Data
 @Slf4j
 @Component
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
     private final String commonErrorText = "Ошибка при добавлении пользователя: %s %s";
     private final String successfulCreation = "информация о пользователе %s добавлена: %s";
@@ -27,6 +28,7 @@ public class InMemoryUserStorage implements UserStorage{
     public Collection<User> getAll() {
         return users.values();
     }
+
     @Override
     public User create(User user) {
 
@@ -48,11 +50,15 @@ public class InMemoryUserStorage implements UserStorage{
         }
         int userId = getNextId();
         user.setId(userId);
+        if (user.getFriendsList() == null) {
+            user.setFriendsList(new HashSet<>());
+        }
         users.put(userId, user);
         String result = "информация о пользователе " + user.getId() + "добавлена: " + user;
         log.info(String.format(successfulCreation, user.getId(), user));
         return user;
     }
+
     @Override
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
@@ -116,3 +122,6 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
 }
+
+
+
