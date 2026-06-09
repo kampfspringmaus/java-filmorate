@@ -13,38 +13,29 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    FilmStorage inMemoryFilmStorage;
+   // FilmStorage inMemoryFilmStorage;
     FilmService filmService;
 
     @Autowired
-    public FilmController(FilmStorage filmStorage, FilmService filmService) {
-        this.inMemoryFilmStorage = filmStorage;
+    public FilmController( FilmService filmService) {//FilmStorage filmStorage,
+        //this.inMemoryFilmStorage = filmStorage;
         this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> getAll() {
-        return inMemoryFilmStorage.getAll();
+        return filmService.getAll();
     }
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        return inMemoryFilmStorage.create(film);
+        return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-        return inMemoryFilmStorage.update(film);
+        return filmService.update(film);
     }
-
-    /* @PutMapping("/Likes")
-    public Film likeAction(@RequestParam Integer filmId, @RequestParam Integer userId,
-                           @RequestParam LikeActions action) {
-        return filmService.likeAction(filmId, userId, action);
-
-    }*/
-
-
     //PUT /films/{id}/like/{userId}
     @PutMapping("/{id}/like/{userId}")
     public Film putLike(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {

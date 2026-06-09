@@ -14,7 +14,5 @@ public interface FilmStorage {
     boolean filmIsPresent(Integer filmId);
 
     Film get(Integer filmId);
-
-
 }
 
