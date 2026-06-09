@@ -5,19 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-//import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.util.Collection;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-   // FilmStorage inMemoryFilmStorage;
     FilmService filmService;
 
     @Autowired
     public FilmController(FilmService filmService) {
-        //this.inMemoryFilmStorage = filmStorage;
         this.filmService = filmService;
     }
 
