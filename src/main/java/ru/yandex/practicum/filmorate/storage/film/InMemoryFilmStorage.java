@@ -24,6 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
      /home/runner/work/java-filmorate/java-filmorate/src/main/java/ru/yandex/practicum/filmorate/storage/film
      /InMemoryFilmStorage.java:22:26: Member name 'COMMON_ERROR_TEXT' must match pattern '^[a-z][a-zA-Z0-9]*$'
      */
+
     @Override
     public Collection<Film> getAll() {
         return films.values();
