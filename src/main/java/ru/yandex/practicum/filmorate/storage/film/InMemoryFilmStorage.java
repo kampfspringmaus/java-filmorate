@@ -19,9 +19,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
     private final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
 
-    private final String commonErrorText = "Ошибка при добавлении фильма: %s %s";
-    private final String successfulCreation = "информация о фильме %s добавлена: %s";
-    private final String successfulUpdate = "информация о фильме %s изменена. Новые данные: %s";
+    private final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: %s %s";
+    private final String SUCCESSFUL_CREATION = "информация о фильме %s добавлена: %s";
+    private final String SUCCESSFUL_UPDATE = "информация о фильме %s изменена. Новые данные: %s";
 
     @Override
     public Collection<Film> getAll() {
@@ -29,21 +29,21 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film create(@RequestBody Film film) {
+    public Film create(Film film) {
         if (!checkNameBlank(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.emptyFilmName));
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.emptyFilmName));
             throw new ConditionsNotMetException(FilmErrorMessages.emptyFilmName);
         }
         if (!checkDescriptionLength(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooLongDescription));
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.tooLongDescription));
             throw new ConditionsNotMetException(FilmErrorMessages.tooLongDescription);
         }
         if (!checkReleaseDate(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooOldFilm));
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.tooOldFilm));
             throw new ConditionsNotMetException(FilmErrorMessages.tooOldFilm);
         }
         if (!checkDuration(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.negativeFilmDuration));
+            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.negativeFilmDuration));
             throw new ConditionsNotMetException(FilmErrorMessages.negativeFilmDuration);
         }
         int filmId = getNextId();
@@ -52,7 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             film.setLikes(new HashSet<>());
         }
         films.put(filmId, film);
-        log.info(String.format(successfulCreation, film.getId(), film));
+        log.info(String.format(SUCCESSFUL_CREATION, film.getId(), film));
         return film;
     }
 
@@ -61,28 +61,46 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(film.getId())) {
             log.info(String.format(FilmErrorMessages.filmNotFound, film.getId()));
             throw new NotFoundException(String.format(FilmErrorMessages.filmNotFound, film.getId()));
-        } else if (film.getName() == null && film.getDuration() == null && film.getReleaseDate() == null
-                && film.getDescription() == null) {
-            return films.get(film.getId());
-        } else {
-            Film oldFilmData = films.get(film.getId());
-
+        }
+        Film oldFilmData = films.get(film.getId());
+        if (film.getName() != null) {
             if (checkNameBlank(film)) {
                 oldFilmData.setName(film.getName());
             }
-            if (checkDescriptionLength(film)) {
-                oldFilmData.setName(film.getName());
-            }
-            if (checkReleaseDate(film)) {
-                oldFilmData.setReleaseDate(film.getReleaseDate());
-            }
+        }
+
+        if (film.getDuration() != null) {
             if (checkDuration(film)) {
                 oldFilmData.setDuration(film.getDuration());
             }
-            log.info(String.format(successfulUpdate, oldFilmData.getId(), oldFilmData));
+        }
+        if (film.getReleaseDate() != null) {
+            if (checkReleaseDate(film)) {
+                oldFilmData.setReleaseDate(film.getReleaseDate());
+            }
+        }
+        if (film.getDescription() != null) {
+            if (checkDescriptionLength(film)) {
+                oldFilmData.setName(film.getName());
+            }
+        }
+
+        /*else if (film.getName() == null && film.getDuration() == null && film.getReleaseDate() == null
+                && film.getDescription() == null) {
+            return films.get(film.getId());
+        } else {
+
+
+
+            if (checkDescriptionLength(film)) {
+                oldFilmData.setName(film.getName());
+            }*/
+
+
+            log.info(String.format(SUCCESSFUL_UPDATE, oldFilmData.getId(), oldFilmData));
             return film;
         }
-    }
+
 
     @Override
     public boolean filmIsPresent(Integer filmId) {

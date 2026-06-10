@@ -64,26 +64,34 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(user.getId())) {
             log.info(String.format(userNotFound, user.getId()));
             throw new NotFoundException(String.format(userNotFound, user.getId()));
-        } else if (user.getEmail() == null && user.getLogin() == null && user.getName() == null
-                && user.getBirthday() == null) {
-            return users.get(user.getId());
-        } else {
-            User oldUserData = users.get(user.getId());
+        }
+        User oldUserData = users.get(user.getId());
+        if (user.getEmail() != null) {
             if (checkEmail(user)) {
                 oldUserData.setEmail(user.getEmail());
             }
+        }
+        if (user.getLogin() != null) {
             if (checkLogin(user)) {
                 oldUserData.setLogin(user.getLogin());
             }
+        }
+        if (user.getName() != null) {
             if (checkName(user)) {
                 oldUserData.setName(user.getLogin());
+            } else {
+                oldUserData.setName(user.getName());
             }
+        }
+        if (user.getBirthday() != null) {
             if (checkBirthday(user)) {
                 oldUserData.setBirthday(user.getBirthday());
             }
+        }
+
             log.info(String.format(successfulUpdate, user.getId(), user));
             return user;
-        }
+
     }
 
     @Override
