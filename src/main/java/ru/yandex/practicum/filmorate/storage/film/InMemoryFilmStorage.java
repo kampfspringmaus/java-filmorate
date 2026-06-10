@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.FilmErrorMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -18,11 +17,13 @@ import java.util.*;
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
     private final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
-
-    private final String COMMON_ERROR_TEXT = "Ошибка при добавлении фильма: %s %s";
-    private final String SUCCESSFUL_CREATION = "информация о фильме %s добавлена: %s";
-    private final String SUCCESSFUL_UPDATE = "информация о фильме %s изменена. Новые данные: %s";
-
+    private final String commonErrorText = "Ошибка при добавлении фильма: %s %s";
+    private final String successfulCreation = "информация о фильме %s добавлена: %s";
+    private final String successfulUpdate = "информация о фильме %s изменена. Новые данные: %s";
+    /*переименование вызывает ошибку
+     /home/runner/work/java-filmorate/java-filmorate/src/main/java/ru/yandex/practicum/filmorate/storage/film
+     /InMemoryFilmStorage.java:22:26: Member name 'COMMON_ERROR_TEXT' must match pattern '^[a-z][a-zA-Z0-9]*$'
+     */
     @Override
     public Collection<Film> getAll() {
         return films.values();
@@ -31,19 +32,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film create(Film film) {
         if (!checkNameBlank(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.emptyFilmName));
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.emptyFilmName));
             throw new ConditionsNotMetException(FilmErrorMessages.emptyFilmName);
         }
         if (!checkDescriptionLength(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.tooLongDescription));
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooLongDescription));
             throw new ConditionsNotMetException(FilmErrorMessages.tooLongDescription);
         }
         if (!checkReleaseDate(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.tooOldFilm));
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooOldFilm));
             throw new ConditionsNotMetException(FilmErrorMessages.tooOldFilm);
         }
         if (!checkDuration(film)) {
-            log.info(String.format(COMMON_ERROR_TEXT, film, FilmErrorMessages.negativeFilmDuration));
+            log.info(String.format(commonErrorText, film, FilmErrorMessages.negativeFilmDuration));
             throw new ConditionsNotMetException(FilmErrorMessages.negativeFilmDuration);
         }
         int filmId = getNextId();
@@ -52,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             film.setLikes(new HashSet<>());
         }
         films.put(filmId, film);
-        log.info(String.format(SUCCESSFUL_CREATION, film.getId(), film));
+        log.info(String.format(successfulCreation, film.getId(), film));
         return film;
     }
 
@@ -84,20 +85,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 oldFilmData.setName(film.getName());
             }
         }
-
-        /*else if (film.getName() == null && film.getDuration() == null && film.getReleaseDate() == null
-                && film.getDescription() == null) {
-            return films.get(film.getId());
-        } else {
-
-
-
-            if (checkDescriptionLength(film)) {
-                oldFilmData.setName(film.getName());
-            }*/
-
-
-            log.info(String.format(SUCCESSFUL_UPDATE, oldFilmData.getId(), oldFilmData));
+            log.info(String.format(successfulUpdate, oldFilmData.getId(), oldFilmData));
             return film;
         }
 
