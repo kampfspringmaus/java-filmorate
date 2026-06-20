@@ -8,11 +8,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserErrorMessages;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Data
 @Slf4j
@@ -126,7 +125,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private boolean checkBirthday(User user) {
-        return user.getBirthday().isBefore(LocalDate.now());
+        return user.getBirthday().before(Timestamp.valueOf(LocalDateTime.now()));
     }
 
 }

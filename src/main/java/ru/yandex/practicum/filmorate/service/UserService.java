@@ -46,8 +46,8 @@ public class UserService {
         if (user1 <= 0 || user2 <= 0) {
             throw new WrongArgumentException("ID пользователя должно быть положительным числом");
         }
-        userStorage.get(user1).getFriendsList().add(user2);
-        userStorage.get(user2).getFriendsList().add(user1);
+        //userStorage.get(user1).getFriendsList().add(user2);
+        //userStorage.get(user2).getFriendsList().add(user1);
         return userStorage.get(user1);
 
     }
