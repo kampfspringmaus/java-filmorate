@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -25,13 +27,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        return userService.create(user);
+    public User create(@RequestBody NewUserRequest request) {
+        return userService.create(request);
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
-        return userService.update(user);
+    public User update(@RequestBody UpdateUserRequest request) {
+        return userService.update(request);
     }
 
     // PUT /users/{id}/friends/{friendId}

@@ -125,7 +125,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private boolean checkBirthday(User user) {
-        return user.getBirthday().before(Timestamp.valueOf(LocalDateTime.now()));
+        return user.getBirthday().isBefore(LocalDate.now());
+    }
+   public  User addFriend(Integer user1, Integer user2) {
+        return null;
+   }
+
+    public  User deleteFriend(Integer user1, Integer user2) {
+        return null;
     }
 
 }

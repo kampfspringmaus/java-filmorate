@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -10,11 +12,13 @@ import java.util.Set;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     private Integer id;
     private String email;
     private String login;
     private String name;
-    private Timestamp birthday;
+    private LocalDate birthday;
     private Set<Integer> friendsList = new HashSet<>();
 }

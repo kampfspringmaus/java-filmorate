@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import java.util.Collection;
@@ -19,13 +21,18 @@ public class FilmController {
     }
 
     @GetMapping
-    public Collection<Film> getAll() {
+    public Collection<FilmResponse> getAll() {
         return filmService.getAll();
     }
 
+    @GetMapping("/{id}")
+    public FilmResponse getFilm(@PathVariable("id") Integer filmId) {
+        return filmService.get(filmId);
+    }
+
     @PostMapping
-    public Film create(@RequestBody Film film) {
-        return filmService.create(film);
+    public FilmResponse create(@RequestBody NewFilmRequest request) {
+        return filmService.create(request);
     }
 
     @PutMapping

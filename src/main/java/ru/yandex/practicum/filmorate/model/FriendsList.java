@@ -6,17 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 @Data
 public class FriendsList {
-    Map<String,String> friendsList = new HashMap<>();
-
-    public void getAll() {
-
-    }
-
-    public void getConfirmed() {
-
-    }
-
-    public void getPending() {
-
-    }
+   private Integer friend_id;
+   private String friendship_status;
+           private Map<Integer,String> friendsList = new HashMap<>();
 }

@@ -1,10 +1,12 @@
-DROP TABLE LIKELISTS;
-DROP TABLE friendships;
-DROP TABLE films;
-DROP TABLE association_rating;
-DROP TABLE users;
-DROP TABLE genre;
-DROP TABLE friendship_status;
+DROP TABLE IF EXISTS like_lists CASCADE;
+DROP TABLE IF EXISTS friendships CASCADE;
+DROP TABLE IF EXISTS films_genres CASCADE;
+DROP TABLE IF EXISTS films CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS association_rating CASCADE;
+DROP TABLE IF EXISTS genre CASCADE;
+DROP TABLE IF EXISTS friendship_status CASCADE;
+DROP TABLE IF EXISTS films_genres CASCADE;
 
 -- 1. Базовые таблицы без внешних ключей
 CREATE TABLE IF NOT EXISTS friendship_status (
@@ -18,7 +20,7 @@ CREATE TABLE IF NOT EXISTS genre (
 );
 
 CREATE TABLE IF NOT EXISTS association_rating (
-    rating_id varchar(255) PRIMARY KEY,
+    rating_id integer PRIMARY KEY,
     rating_description varchar(255)
 );
 
@@ -38,8 +40,14 @@ CREATE TABLE IF NOT EXISTS films (
     film_description varchar(255),
     film_releaseDate DATE,
     film_duration INTEGER,
-    film_genre_id integer REFERENCES genre(genre_id),
-    film_rating_id varchar(255) REFERENCES association_rating(rating_id)
+ --  film_genre_id integer REFERENCES genre(genre_id),
+    film_rating_id integer REFERENCES association_rating(rating_id)
+);
+
+CREATE TABLE IF NOT EXISTS films_genres (
+film_id integer REFERENCES films(film_id),
+film_genre_id integer REFERENCES genre(genre_id),
+PRIMARY KEY (film_id, film_genre_id)
 );
 
 -- 4. Таблицы с ссылками на users и другие
@@ -51,7 +59,7 @@ CREATE TABLE IF NOT EXISTS friendships (
 );
 
 -- 5. Последняя таблица с ссылками на films и users
-CREATE TABLE IF NOT EXISTS LikeLists (
+CREATE TABLE IF NOT EXISTS like_lists (
     film_id integer REFERENCES films(film_id),
     user_id integer REFERENCES users(user_id),
     PRIMARY KEY (film_id, user_id)
@@ -64,11 +72,11 @@ insert into genre (genre_name) values ('Триллер');
 insert into genre (genre_name) values ('Документальный');
 insert into genre (genre_name) values ('Боевик');
 
-insert into association_rating values ('G','у фильма нет возрастных ограничений');
-insert into association_rating values ('PG','детям рекомендуется смотреть фильм с родителями');
-insert into association_rating values ('PG-13','детям до 13 лет просмотр не желателен');
-insert into association_rating values ('R','лицам до 17 лет просматривать фильм можно только в присутствии взрослого');
-insert into association_rating values ('NC-17','лицам до 18 лет просмотр запрещён');
+insert into association_rating values (1, 'G');
+insert into association_rating values (2, 'PG');
+insert into association_rating values (3, 'PG-13');
+insert into association_rating values (4, 'R');
+insert into association_rating values (5, 'NC-17');
 
 insert into friendship_status values (0, 'pending');
 insert into friendship_status values (1, 'confirmed');

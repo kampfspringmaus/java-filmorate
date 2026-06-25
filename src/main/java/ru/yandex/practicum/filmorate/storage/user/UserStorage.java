@@ -15,4 +15,8 @@ public interface UserStorage {
     boolean userIsPresent(Integer userId);
 
     User get(Integer userId);
+
+    User addFriend(Integer user1, Integer user2);
+
+    User deleteFriend(Integer userId, Integer friendId);
 }

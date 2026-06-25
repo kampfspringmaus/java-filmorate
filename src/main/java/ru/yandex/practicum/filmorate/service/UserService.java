@@ -1,9 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.WrongArgumentException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -17,7 +21,7 @@ public class UserService {
     UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -25,13 +29,29 @@ public class UserService {
         return userStorage.getAll();
     }
 
-    public User create(User user) {
+    /*public User create(User user) {
         return userStorage.create(user);
+    }*/
+
+    public User create(NewUserRequest request) {
+        return userStorage.create(UserMapper.mapToUser(request));
     }
 
-    public User update(User user) {
-        return userStorage.update(user);
+    public User update(UpdateUserRequest request) {
+        User user = userStorage.get(request.getId());
+        if (user == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        user = UserMapper.updateUserFields(user, request);
+        userStorage.update(user);
+        return user;
     }
+
+
+
+   /* public User update(User user) {
+        return userStorage.update(user);
+    }*/
 
     public User addFriend(Integer user1, Integer user2) {
         if (user1.equals(user2)) {
@@ -46,6 +66,7 @@ public class UserService {
         if (user1 <= 0 || user2 <= 0) {
             throw new WrongArgumentException("ID пользователя должно быть положительным числом");
         }
+        userStorage.addFriend(user1, user2);
         //userStorage.get(user1).getFriendsList().add(user2);
         //userStorage.get(user2).getFriendsList().add(user1);
         return userStorage.get(user1);
@@ -65,9 +86,9 @@ public class UserService {
         if (user1 <= 0 || user2 <= 0) {
             throw new WrongArgumentException("ID пользователя должно быть положительным числом");
         }
-        userStorage.get(user1).getFriendsList().remove(user2);
-        userStorage.get(user2).getFriendsList().remove(user1);
-        return userStorage.get(user1);
+        //userStorage.get(user1).getFriendsList().remove(user2);
+        //userStorage.get(user2).getFriendsList().remove(user1);
+        return userStorage.deleteFriend(user1, user2);
 
     }
 
