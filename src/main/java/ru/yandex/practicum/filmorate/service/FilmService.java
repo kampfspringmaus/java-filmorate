@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.FilmErrorMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -71,8 +72,31 @@ public class FilmService {
         return FilmMapper.mapToFilmResponse(film);
     }
 
-    public Film update(Film film) {
-        return filmStorage.update(film);
+    public FilmResponse update(UpdateFilmRequest request) {
+        Film requestForUpdate = FilmMapper.mapToFilm(request);
+        Film updatedFilm = filmStorage.get(requestForUpdate.getId());
+        if (requestForUpdate.getName() != null && !requestForUpdate.getName().isBlank()) {
+            updatedFilm.setName(requestForUpdate.getName());
+        }
+        if (requestForUpdate.getDescription() != null && requestForUpdate.getDescription().length() < 200) {
+            updatedFilm.setDescription(requestForUpdate.getDescription());
+        }
+
+        if (requestForUpdate.getReleaseDate() != null && requestForUpdate.getReleaseDate().isAfter(firstFilmDate)) {
+            updatedFilm.setReleaseDate(requestForUpdate.getReleaseDate());
+        }
+        if (requestForUpdate.getDuration() != null && requestForUpdate.getDuration() > 0) {
+            updatedFilm.setDuration(requestForUpdate.getDuration());
+        }
+        if (requestForUpdate.getGenres() != null) {
+            updatedFilm.setGenres(requestForUpdate.getGenres());
+        }
+        if (requestForUpdate.getMpaId() != null) {
+            updatedFilm.setMpaId(requestForUpdate.getMpaId());
+        }
+        updatedFilm = filmStorage.update(updatedFilm);
+        return FilmMapper.mapToFilmResponse(updatedFilm);
+
     }
 
     public Film putLike(Integer filmId, Integer userId) {

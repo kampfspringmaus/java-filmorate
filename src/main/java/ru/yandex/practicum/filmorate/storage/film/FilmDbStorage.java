@@ -12,9 +12,11 @@ import ru.yandex.practicum.filmorate.exception.WrongArgumentException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,8 +39,8 @@ public class FilmDbStorage implements FilmStorage {
 
     private static final String FIND_ALL_FILMS_QUERY = "SELECT film_id FROM films";
     private static final String FIND_FILM_BY_ID_QUERY = "SELECT * FROM films where film_id = ?";
-    private static final String FIND_FILM_GENRES_BY_FILM_ID = "SELECT genre_id from genres where genre_id in (select film_genre_id" +
-            " from  film_genres where film_id = ?)";
+    private static final String FIND_FILM_GENRES_BY_FILM_ID = "SELECT genre_id from genre where genre_id in (select film_genre_id" +
+            " from  films_genres where film_id = ?)";
     private static final String FIND_FILM_MPA_BY_FILM_ID = "SELECT * FROM association_rating where rating_id = " +
             "(select film_rating_id FROM films WHERE film_id = ?)";
     private static final String FIND_FILM_LIKES_BY_FILM_ID = "SELECT user_id FROM like_lists where film_id = ?";
@@ -47,6 +49,12 @@ public class FilmDbStorage implements FilmStorage {
     private static final String CREATE_FILM_GENRES_QUERY = "INSERT INTO films_genres (film_id, film_genre_id) VALUES (?, ?)";
     private static final String CHECK_MPA_EXISTANCE_QUERY = "SELECT COUNT(*) FROM association_rating where rating_id = ?";
     private static final String CHECK_GENRE_EXISTANCE_QUERY = "SELECT COUNT(*) FROM genre where genre_id = ?";
+    private static final String UPDATE_FILM_QUERY = "UPDATE films SET film_name = ?, film_description = ?, film_releaseDate = ?," +
+            "film_duration = ?, film_rating_id = ? WHERE film_id = ?";
+    private static final String DELETE_FILMS_GENRES = "DELETE from films_genres where film_id = ?";
+
+
+
 
 
     public Collection<Film> getAll() {
@@ -109,8 +117,21 @@ public class FilmDbStorage implements FilmStorage {
 
 
     public Film update(Film film) {
-        return null;
+        int rowsUpdated = jdbc.update(UPDATE_FILM_QUERY, film.getName(), film.getDescription(),film.getReleaseDate(),
+                film.getDuration(), film.getMpaId(), film.getId());
+
+
+        if (film.getGenres() != null) {
+            int rowsDeleted = jdbc.update(DELETE_FILMS_GENRES, film.getId());
+            film.getGenres().stream()
+                    .forEach(genre_id ->
+                            jdbc.update(CREATE_FILM_GENRES_QUERY, film.getId(), genre_id)
+                    );
+
+        }
+        return film;
     }
+
 
     public boolean filmIsPresent(Integer filmId) {
         try {

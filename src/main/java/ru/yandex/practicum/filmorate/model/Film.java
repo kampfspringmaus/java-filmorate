@@ -20,8 +20,8 @@ public class Film {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-    private Set<Integer> genres = new HashSet<>();
-    private Integer mpaId;
+    private Set<Genre> genres = new HashSet<>();
+    private Mpa mpa;
     private Set<Integer> likes = new HashSet<>();
 }
 

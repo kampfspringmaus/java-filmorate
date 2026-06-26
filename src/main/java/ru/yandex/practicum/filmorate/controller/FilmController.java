@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import java.util.Collection;
@@ -36,8 +37,8 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
-        return filmService.update(film);
+    public FilmResponse update(@RequestBody UpdateFilmRequest request) {
+        return filmService.update(request);
     }
 
     //PUT /films/{id}/like/{userId}
