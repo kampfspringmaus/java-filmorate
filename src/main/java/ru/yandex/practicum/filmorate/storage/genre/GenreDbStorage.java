@@ -8,9 +8,12 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 @Data
 @Slf4j
 @Component
@@ -24,16 +27,36 @@ public class GenreDbStorage {
         this.jdbc = jdbc;
         this.mapperGenre = mapperGenre;
     }
+
     public Collection<Genre> getAll() {
         return jdbc.query(FIND_ALL_GENRE_QUERY, mapperGenre);
     }
 
-    public Genre get(Integer mpaId) {
+    public Genre get(Integer genreId) {
         try {
-            Genre result = jdbc.queryForObject(FIND_GENRE_BY_ID_QUERY, mapperGenre, mpaId);
+            Genre result = jdbc.queryForObject(FIND_GENRE_BY_ID_QUERY, mapperGenre, genreId);
             return result;
         } catch (EmptyResultDataAccessException ignored) {
             throw new NotFoundException("жанр не найден");
         }
     }
+
+    public Collection<Genre> getFilmGenres(Set<Integer> genres) {
+        if (genres == null || genres.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Формируем строку из "?, ?, ?" под количество ID
+        String placeholders = String.join(",", Collections.nCopies(genres.size(), "?"));
+        String sql = "SELECT * FROM genre WHERE genre_id IN (" + placeholders + ") ORDER BY genre_id";
+
+        List<Genre> result = jdbc.query(sql, mapperGenre, genres.toArray(new Integer[0]));
+
+        return result;
+
+        /*   return genres.stream()
+                .map(genreId -> get(genreId))
+                .collect(Collectors.toSet());*/
+    }
+
 }

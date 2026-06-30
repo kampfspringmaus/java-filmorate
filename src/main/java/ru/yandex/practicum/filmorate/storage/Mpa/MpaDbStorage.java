@@ -7,9 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 
@@ -21,10 +19,12 @@ public class MpaDbStorage {
     protected final RowMapper<Mpa> mapperMpa;
     private static final String FIND_ALL_MPA_QUERY = "SELECT * FROM association_rating order by rating_id";
     private static final String FIND_MPA_BY_ID_QUERY = "SELECT * FROM association_rating where rating_id = ?";
+
     public MpaDbStorage(JdbcTemplate jdbc, RowMapper<Mpa> mapperMpa) {
         this.jdbc = jdbc;
         this.mapperMpa = mapperMpa;
     }
+
     public Collection<Mpa> getAll() {
         return jdbc.query(FIND_ALL_MPA_QUERY, mapperMpa);
     }
@@ -37,4 +37,6 @@ public class MpaDbStorage {
             throw new NotFoundException("рейтинг не найден");
         }
     }
+
+
 }

@@ -11,10 +11,8 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Service
 public class UserService {
@@ -66,11 +64,14 @@ public class UserService {
         if (user1 <= 0 || user2 <= 0) {
             throw new WrongArgumentException("ID пользователя должно быть положительным числом");
         }
-        userStorage.addFriend(user1, user2);
-        //userStorage.get(user1).getFriendsList().add(user2);
-        //userStorage.get(user2).getFriendsList().add(user1);
-        return userStorage.get(user1);
-
+        if (userStorage.checkFriendship(user1, user2)) {
+            return userStorage.get(user1);
+        }
+        User result = userStorage.addFriend(user1, user2);
+        if (userStorage.checkFriendship(user2, user1)) {
+            userStorage.confirmFriendship(user2, user1);
+        }
+        return result;
     }
 
     public User removeFriend(Integer user1, Integer user2) {
@@ -92,39 +93,18 @@ public class UserService {
 
     }
 
-    public Collection<User> getFriendsList(Integer user) {
-        if (!userStorage.userIsPresent(user)) {
+    public Collection<User> getFriendsList(Integer userId) {
+        if (!userStorage.userIsPresent(userId)) {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        Set<Integer> userFriends = userStorage.get(user).getFriendsList();
 
-        Collection<User> result = new ArrayList<>();
-        userFriends.forEach(userId -> {
-            User user1 = userStorage.get(userId);
-            if (user1 != null) {
-                result.add(user1);
-            }
-        });
-        return result;
+        return userStorage.getFriendList(userId);
     }
 
     public Collection<User> getCommonFriends(Integer user1, Integer user2) {
 
 
-        Set<Integer> user1Friends = userStorage.get(user1).getFriendsList();
-        Set<Integer> user2Friends = userStorage.get(user2).getFriendsList();
-        Set<Integer> commonFriends = user1Friends.stream()
-                .filter(user2Friends::contains)
-                .collect(Collectors.toSet());
-
-        Collection<User> result = new ArrayList<>();
-        commonFriends.forEach(userId -> {
-            User user = userStorage.get(userId);
-            if (user != null) {
-                result.add(user);
-            }
-        });
-        return result;
+        return userStorage.getCommonFriends(user1, user2);
     }
 }

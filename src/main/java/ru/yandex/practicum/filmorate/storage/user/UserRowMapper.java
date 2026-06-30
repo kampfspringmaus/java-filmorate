@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
 
 @Component
 public class UserRowMapper implements RowMapper<User> {
@@ -19,7 +17,7 @@ public class UserRowMapper implements RowMapper<User> {
         user.setEmail(resultSet.getString("user_email"));
         user.setLogin(resultSet.getString("user_login"));
         user.setName(resultSet.getString("user_name"));
-        Timestamp ts =resultSet.getTimestamp("user_birthday");
+        Timestamp ts = resultSet.getTimestamp("user_birthday");
 if (ts != null) {
     user.setBirthday(ts.toLocalDateTime().toLocalDate());
 } else {

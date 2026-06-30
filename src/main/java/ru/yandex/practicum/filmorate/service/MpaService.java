@@ -12,7 +12,7 @@ public class MpaService {
     MpaDbStorage mpaStorage;
 
     @Autowired
-    public MpaService (MpaDbStorage mpaStorage) {
+    public MpaService(MpaDbStorage mpaStorage) {
         this.mpaStorage = mpaStorage;
     }
 

@@ -8,9 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserErrorMessages;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Data
@@ -88,8 +86,8 @@ public class InMemoryUserStorage implements UserStorage {
             }
         }
 
-            log.info(String.format(successfulUpdate, user.getId(), user));
-            return user;
+        log.info(String.format(successfulUpdate, user.getId(), user));
+        return user;
 
     }
 
@@ -124,15 +122,38 @@ public class InMemoryUserStorage implements UserStorage {
         return !user.getName().isBlank();
     }
 
+
     private boolean checkBirthday(User user) {
         return user.getBirthday().isBefore(LocalDate.now());
     }
-   public  User addFriend(Integer user1, Integer user2) {
-        return null;
-   }
 
-    public  User deleteFriend(Integer user1, Integer user2) {
+    @Override
+    public User addFriend(Integer user1, Integer user2) {
         return null;
     }
 
+    @Override
+    public User deleteFriend(Integer user1, Integer user2) {
+        return null;
+    }
+
+    @Override
+    public User confirmFriendship(Integer user1, Integer user2) {
+        return null;
+    }
+
+    @Override
+    public boolean checkFriendship(Integer user1, Integer user2) {
+        return false;
+    }
+
+    @Override
+    public List<User>  getFriendList(Integer userId) {
+       return null;
+    }
+
+    @Override
+    public List<User> getCommonFriends(Integer user1, Integer user2) {
+        return null;
+    }
 }

@@ -2,10 +2,7 @@ package ru.yandex.practicum.filmorate.dto;
 
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class UpdateUserRequest {

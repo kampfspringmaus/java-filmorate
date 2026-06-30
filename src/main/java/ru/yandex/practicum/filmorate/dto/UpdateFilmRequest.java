@@ -28,7 +28,7 @@ public class UpdateFilmRequest {
         return releaseDate.isBefore(date);
     }
 
-    public boolean DurationIsNotPositive() {
+    public boolean durationIsNotPositive() {
         return duration <= 0;
     }
 }

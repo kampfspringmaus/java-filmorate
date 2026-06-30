@@ -11,14 +11,13 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserErrorMessages;
-import ru.yandex.practicum.filmorate.model.FriendsList;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,13 @@ public class UserDbStorage implements UserStorage {
     private static final String FIND_FRIENDS_BY_USER_ID = "SELECT friend_id from friendships where user_id = ?";
     private static final String CREATE_USER_FRIEND = "INSERT into friendships (user_id, friend_id, status_id) VALUES " +
             "(?, ?, 0)";
-    private static final String DELETE_USER_FRIEND = "DELETE from friendships where user_id = ? and friend_id = ?";
+    private static final String DELETE_USER_FRIEND = "DELETE FROM friendships where user_id = ? and friend_id = ?";
+    private static final String CHECK_FRIENDSHIP_QUERY = "SELECT count(*) from friendships where user_id = ? and friend_id = ?";
+    private static final String CONFIRM_FRIENDSHIP_QUERY = "UPDATE friendships SET status_id = 1 where user_id = ? and " +
+            "friend_id = ?";
+    private static final String GET_FRIENDLIST_BY_USER_ID = "SELECT friend_id FROM friendships where user_id = ?";
+    private static final String GET_COMMON_FRIENDS = "SELECT friend_id FROM friendships where user_id = ? and friend_id in" +
+            "(select friend_id from friendships where user_id = ?)";
     private final String commonErrorText = "Ошибка при добавлении пользователя: %s %s";
 
             /*"select fr.friend_id as friend_id, fs.status_description " +
@@ -132,7 +137,8 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    public User addFriend (Integer userId, Integer friendId){
+    @Override
+    public User addFriend(Integer userId, Integer friendId) {
         if (!userIsPresent(userId)) {
             throw new NotFoundException("Пользователь не найден");
         }
@@ -143,7 +149,7 @@ public class UserDbStorage implements UserStorage {
         int rowsInserted = jdbc.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(CREATE_USER_FRIEND, Statement.RETURN_GENERATED_KEYS);
-            ps.setObject(1,userId);
+            ps.setObject(1, userId);
             ps.setObject(2, friendId);
             //System.out.println( user.getEmail()+' '+user.getLogin()+' '+user.getName()+' '+user.getBirthday());
             return ps;
@@ -153,10 +159,10 @@ public class UserDbStorage implements UserStorage {
             throw new InternalServerException("Этот пользователь уже добавлен в друзья");
         }
         return get(userId);
-
-
     }
-    public User deleteFriend(Integer userId, Integer friendId){
+
+    @Override
+    public User deleteFriend(Integer userId, Integer friendId) {
         if (!userIsPresent(userId)) {
             throw new NotFoundException("Пользователь не найден");
         }
@@ -164,10 +170,10 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Друг не найден");
         }
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        int rowsDeleted= jdbc.update(connection -> {
+        int rowsDeleted = jdbc.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(DELETE_USER_FRIEND, Statement.RETURN_GENERATED_KEYS);
-            ps.setObject(1,userId);
+            ps.setObject(1, userId);
             ps.setObject(2, friendId);
             //System.out.println( user.getEmail()+' '+user.getLogin()+' '+user.getName()+' '+user.getBirthday());
             return ps;
@@ -176,17 +182,47 @@ public class UserDbStorage implements UserStorage {
         if (rowsDeleted == 0) {
 
             log.info(String.format("Пользователи с id %s и %s не являются друзьями", userId, friendId));
-           // throw new InternalServerException("Эти люди не являются друзьями");
+            // throw new InternalServerException("Эти люди не являются друзьями");
         }
         return get(userId);
     }
 
-
-
-    private boolean badEmail(User user) {
-        return !user.getEmail().contains("@")||user.getEmail().isEmpty();
+    @Override
+    public User confirmFriendship(Integer user1, Integer user2) {
+        int rowsUpdated = jdbc.update(CONFIRM_FRIENDSHIP_QUERY, user1, user2);
+        if (rowsUpdated == 0) {
+            throw new InternalServerException("Не удалось обновить данные о дружбе");
+        }
+        return get(user1);
     }
 
+    @Override
+    public boolean checkFriendship(Integer user1, Integer user2) {
+        Integer isFriend = jdbc.queryForObject(CHECK_FRIENDSHIP_QUERY, Integer.class, user1, user2);
+        return isFriend > 0;
+    }
+
+    @Override
+    public List<User>  getFriendList(Integer userId) {
+        List<User> result = jdbc.queryForList(GET_FRIENDLIST_BY_USER_ID, Integer.class, userId)
+                .stream()
+                .map(this::get)
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    @Override
+    public List<User>  getCommonFriends(Integer user1, Integer user2) {
+        List<User>  result = jdbc.queryForList(GET_COMMON_FRIENDS, Integer.class, user1, user2)
+                .stream()
+                .map(this::get)
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    private boolean badEmail(User user) {
+        return !user.getEmail().contains("@") || user.getEmail().isEmpty();
+    }
 
     private boolean badLogin(User user) {
         return user.getLogin().isEmpty() || user.getLogin().contains(" ");

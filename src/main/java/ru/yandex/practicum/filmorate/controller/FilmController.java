@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import java.util.Collection;
 
@@ -43,19 +42,19 @@ public class FilmController {
 
     //PUT /films/{id}/like/{userId}
     @PutMapping("/{id}/like/{userId}")
-    public Film putLike(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {
+    public FilmResponse putLike(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {
         return filmService.putLike(filmId, userId);
     }
 
     //DELETE /films/{id}/like/{userId}
     @DeleteMapping("/{id}/like/{userId}")
-    public Film cancelLike(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {
+    public FilmResponse cancelLike(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {
         return filmService.cancelLike(filmId, userId);
     }
 
     //GET /films/popular?count={count}
     @GetMapping("/popular")
-    public Collection<Film> getTopRatedFilms(@RequestParam(defaultValue = "10") Integer count) {
+    public Collection<FilmResponse> getTopRatedFilms(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.getTopRatedFilms(count);
     }
 

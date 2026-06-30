@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.dto;
 
 import lombok.Data;
-
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
 @Data
 public class FilmResponse {
@@ -12,10 +14,7 @@ public class FilmResponse {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-
-    // Mpa может отсутствовать (null), если клиент его не прислал
-    private MpaDto mpa;
-
-    // Genres может отсутствовать или быть пустым списком
-    private List<GenreDto> genres;
+    private Mpa mpa;
+   private Collection<Genre> genres;
+    private Set<Integer> likes;
 }

@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.dto;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.model.Film;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +30,7 @@ public class NewFilmRequest {
         return releaseDate.isBefore(date);
     }
 
-    public boolean DurationIsNotPositive() {
+    public boolean durationIsNotPositive() {
         return duration <= 0;
     }
 

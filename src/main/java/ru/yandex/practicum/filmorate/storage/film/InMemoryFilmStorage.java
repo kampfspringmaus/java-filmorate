@@ -101,6 +101,24 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(filmId);
     }
 
+    @Override
+    public Film addLike(Integer filmId, Integer userId) {
+
+        return null;
+    }
+
+    @Override
+    public Film cancelLike(Integer filmId, Integer userId) {
+
+        return null;
+    }
+
+
+    @Override
+    public Set<Integer> getLikes(Integer filmId) {
+        return null;
+    }
+
     private boolean checkNameBlank(Film film) {
         return !film.getName().isBlank();
     }

@@ -12,12 +12,18 @@ import ru.yandex.practicum.filmorate.exception.FilmErrorMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.Mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,30 +31,51 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final static LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
+    private final MpaDbStorage mpaStorage;
+    private final GenreDbStorage genreStorage;
+
+    private static final LocalDate firstFilmDate = LocalDate.of(1895, 12, 28);
     private final String commonErrorText = "Ошибка при добавлении фильма: %s %s";
     private final String successfulCreation = "информация о фильме %s добавлена: %s";
     private final String successfulUpdate = "информация о фильме %s изменена. Новые данные: %s";
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage,
+                       MpaDbStorage mpaStorage, GenreDbStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
-    public Collection<FilmResponse> getAll() {
+   /* public Collection<FilmResponse> getAll() {
         Collection<Film> films = filmStorage.getAll();
         Collection<FilmResponse> result = films.stream()
-                .map(film -> FilmMapper.mapToFilmResponse(film))
+                .map(film -> get(film.getId()))
                 .collect(Collectors.toSet());
         return result;
 
 
+    }*/
+
+    public List<FilmResponse> getAll() {
+        return filmStorage.getAll().stream()
+                .map(film -> {
+                    Mpa mpa = mpaStorage.get(film.getMpaId());
+                    Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());
+                    Set<Integer> likes = filmStorage.getLikes(film.getId());
+                    return FilmMapper.mapToFilmResponse(film, mpa, genres, likes);
+                })
+                .sorted(Comparator.comparingInt(FilmResponse::getId)) // сортируем по ID
+                .collect(Collectors.toList()); // используем List, чтобы порядок был стабильным
     }
 
     public FilmResponse get(Integer filmId) {
         Film film = filmStorage.get(filmId);
-        return FilmMapper.mapToFilmResponse(film);
+        Mpa mpa = mpaStorage.get(film.getMpaId());
+        Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());
+        Set<Integer> likes = filmStorage.getLikes(filmId);
+        return FilmMapper.mapToFilmResponse(film, mpa, genres, likes);
     }
 
     public FilmResponse create(NewFilmRequest request) {
@@ -64,12 +91,15 @@ public class FilmService {
             log.info(String.format(commonErrorText, request, FilmErrorMessages.tooOldFilm));
             throw new ConditionsNotMetException(FilmErrorMessages.tooOldFilm);
         }
-        if (request.DurationIsNotPositive()) {
+        if (request.durationIsNotPositive()) {
             log.info(String.format(commonErrorText, request, FilmErrorMessages.negativeFilmDuration));
             throw new ConditionsNotMetException(FilmErrorMessages.negativeFilmDuration);
         }
         Film film = filmStorage.create(FilmMapper.mapToFilm(request));
-        return FilmMapper.mapToFilmResponse(film);
+        Mpa mpa = mpaStorage.get(film.getMpaId());
+        Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());
+        Set<Integer> likes = filmStorage.getLikes(film.getId());
+        return FilmMapper.mapToFilmResponse(film, mpa, genres, likes);
     }
 
     public FilmResponse update(UpdateFilmRequest request) {
@@ -95,11 +125,15 @@ public class FilmService {
             updatedFilm.setMpaId(requestForUpdate.getMpaId());
         }
         updatedFilm = filmStorage.update(updatedFilm);
-        return FilmMapper.mapToFilmResponse(updatedFilm);
+        Mpa mpa = mpaStorage.get(updatedFilm.getMpaId());
+        Collection<Genre> genres = genreStorage.getFilmGenres(updatedFilm.getGenres());
+        Set<Integer> likes = filmStorage.getLikes(updatedFilm.getId());
+        return FilmMapper.mapToFilmResponse(updatedFilm, mpa, genres, likes);
+
 
     }
 
-    public Film putLike(Integer filmId, Integer userId) {
+    public FilmResponse putLike(Integer filmId, Integer userId) {
         if (!filmStorage.filmIsPresent(filmId)) {
             throw new NotFoundException("Нет такого фильма");
         }
@@ -108,12 +142,14 @@ public class FilmService {
             throw new NotFoundException("Нет такого пользователя");
         }
 
-        Film result = filmStorage.get(filmId);
-        result.getLikes().add(userId);
-        return result;
+        Film result = filmStorage.addLike(filmId, userId);
+        Mpa mpa = mpaStorage.get(result.getMpaId());
+        Collection<Genre> genres = genreStorage.getFilmGenres(result.getGenres());
+        Set<Integer> likes = filmStorage.getLikes(filmId);
+        return FilmMapper.mapToFilmResponse(result, mpa, genres, likes);
     }
 
-    public Film cancelLike(Integer filmId, Integer userId) {
+    public FilmResponse cancelLike(Integer filmId, Integer userId) {
         if (!filmStorage.filmIsPresent(filmId)) {
             throw new NotFoundException("Нет такого фильма");
         }
@@ -122,16 +158,34 @@ public class FilmService {
             throw new NotFoundException("Нет такого пользователя");
         }
 
-        Film result = filmStorage.get(filmId);
-        result.getLikes().remove(userId);
-        return result;
+        Film result = filmStorage.cancelLike(filmId, userId);
+        Mpa mpa = mpaStorage.get(result.getMpaId());
+        Collection<Genre> genres = genreStorage.getFilmGenres(result.getGenres());
+        Set<Integer> likes = filmStorage.getLikes(filmId);
+        return FilmMapper.mapToFilmResponse(result, mpa, genres, likes);
     }
 
-    public Collection<Film> getTopRatedFilms(Integer count) {
-        Collection<Film> result = filmStorage.getAll().stream()
+    public List<FilmResponse> getTopRatedFilms(Integer count) {
+        List<FilmResponse> result = filmStorage.getAll().stream()
                 .sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
                 .limit(count)
+                .map(film -> {
+                    Mpa mpa = mpaStorage.get(film.getMpaId());
+                    Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());
+                    Set<Integer> likes = filmStorage.getLikes(film.getId());
+                    return FilmMapper.mapToFilmResponse(film, mpa, genres, likes);
+                })
                 .collect(Collectors.toList());
         return result;
+
+        /*        return filmStorage.getAll().stream()
+                .map(film -> {
+                    Mpa mpa = mpaStorage.get(film.getMpaId());
+                    Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());
+                    Set<Integer> likes = filmStorage.getLikes(film.getId());
+                    return FilmMapper.mapToFilmResponse(film, mpa, genres, likes);
+                })
+                .sorted(Comparator.comparingInt(FilmResponse::getId)) // сортируем по ID
+                .collect(Collectors.toList()); */
     }
 }
