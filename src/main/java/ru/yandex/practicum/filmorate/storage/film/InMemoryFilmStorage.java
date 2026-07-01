@@ -119,6 +119,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
+    public List<Film> getTopRated(Integer count) {
+        return null;
+    }
+
     private boolean checkNameBlank(Film film) {
         return !film.getName().isBlank();
     }

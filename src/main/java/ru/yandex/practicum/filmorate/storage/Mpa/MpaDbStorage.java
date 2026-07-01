@@ -17,8 +17,8 @@ import java.util.Collection;
 public class MpaDbStorage {
     protected final JdbcTemplate jdbc;
     protected final RowMapper<Mpa> mapperMpa;
-    private static final String FIND_ALL_MPA_QUERY = "SELECT * FROM association_rating order by rating_id";
-    private static final String FIND_MPA_BY_ID_QUERY = "SELECT * FROM association_rating where rating_id = ?";
+    private static final String FIND_ALL_MPA_QUERY = "SELECT * FROM mpa_rating order by rating_id";
+    private static final String FIND_MPA_BY_ID_QUERY = "SELECT * FROM mpa_rating where rating_id = ?";
 
     public MpaDbStorage(JdbcTemplate jdbc, RowMapper<Mpa> mapperMpa) {
         this.jdbc = jdbc;

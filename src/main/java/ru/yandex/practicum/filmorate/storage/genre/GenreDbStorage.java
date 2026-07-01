@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-@Data
 @Slf4j
 @Component
 public class GenreDbStorage {

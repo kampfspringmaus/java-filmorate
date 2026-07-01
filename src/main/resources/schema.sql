@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS friendships CASCADE;
 DROP TABLE IF EXISTS films_genres CASCADE;
 DROP TABLE IF EXISTS films CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS association_rating CASCADE;
+DROP TABLE IF EXISTS mpa_rating CASCADE;
 DROP TABLE IF EXISTS genre CASCADE;
 DROP TABLE IF EXISTS friendship_status CASCADE;
 DROP TABLE IF EXISTS films_genres CASCADE;
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS genre (
     genre_name varchar(255)
 );
 
-CREATE TABLE IF NOT EXISTS association_rating (
+CREATE TABLE IF NOT EXISTS mpa_rating (
     rating_id integer PRIMARY KEY,
     rating_description varchar(255)
 );
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS films (
     film_releaseDate DATE,
     film_duration INTEGER,
  --  film_genre_id integer REFERENCES genre(genre_id),
-    film_rating_id integer REFERENCES association_rating(rating_id)
+    film_rating_id integer REFERENCES mpa_rating(rating_id)
 );
 
 CREATE TABLE IF NOT EXISTS films_genres (
@@ -72,11 +72,11 @@ insert into genre (genre_name) values ('Триллер');
 insert into genre (genre_name) values ('Документальный');
 insert into genre (genre_name) values ('Боевик');
 
-insert into association_rating values (1, 'G');
-insert into association_rating values (2, 'PG');
-insert into association_rating values (3, 'PG-13');
-insert into association_rating values (4, 'R');
-insert into association_rating values (5, 'NC-17');
+insert into mpa_rating values (1, 'G');
+insert into mpa_rating values (2, 'PG');
+insert into mpa_rating values (3, 'PG-13');
+insert into mpa_rating values (4, 'R');
+insert into mpa_rating values (5, 'NC-17');
 
 insert into friendship_status values (0, 'pending');
 insert into friendship_status values (1, 'confirmed');

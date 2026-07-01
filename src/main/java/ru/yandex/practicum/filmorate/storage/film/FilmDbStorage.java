@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,35 @@ public class FilmDbStorage implements FilmStorage {
     protected final RowMapper<Film> mapper;
     protected final RowMapper<Mpa> mapperMpa;
     protected final RowMapper<Genre> mapperGenre;
+    private static final String FIND_ALL_FILMS_QUERY = "SELECT film_id FROM films";
+    private static final String FIND_FILM_BY_ID_QUERY = "SELECT * FROM films where film_id = ?";
+    private static final String FIND_FILM_GENRES_BY_FILM_ID = "SELECT genre_id from genre where genre_id in (select film_genre_id" +
+            " from  films_genres where film_id = ?)";
+    private static final String FIND_FILM_MPA_BY_FILM_ID = "SELECT * FROM mpa_rating where rating_id = " +
+            "(select film_rating_id FROM films WHERE film_id = ?)";
+    private static final String FIND_FILM_LIKES_BY_FILM_ID = "SELECT user_id FROM like_lists where film_id = ?";
+    private static final String CREATE_FILM_QUERY = "INSERT INTO films (film_name, film_description, film_releasedate, " +
+            "film_duration, film_rating_id) VALUES (?, ?, ?, ?, ?)";
+    private static final String CREATE_FILM_GENRES_QUERY = "INSERT INTO films_genres (film_id, film_genre_id) VALUES (?, ?)";
+    private static final String CHECK_FILM_EXISTANCE_QUERY = "SELECT COUNT(*) FROM films where film_id = ?";
+    private static final String CHECK_MPA_EXISTANCE_QUERY = "SELECT COUNT(*) FROM mpa_rating where rating_id = ?";
+    private static final String CHECK_GENRE_EXISTANCE_QUERY = "SELECT COUNT(*) FROM genre where genre_id = ?";
+    private static final String UPDATE_FILM_QUERY = "UPDATE films SET film_name = ?, film_description = ?, film_releaseDate = ?," +
+            "film_duration = ?, film_rating_id = ? WHERE film_id = ?";
+    private static final String DELETE_FILMS_GENRES = "DELETE from films_genres where film_id = ?";
+    private static final String INSERT_LIKE_QUERY = "INSERT INTO like_lists (film_id, user_id) VALUES (?, ?)";
+    private static final String DELETE_LIKE_QUERY = "DELETE FROM like_lists WHERE film_id = ? AND user_id = ?";
+    private static final String FIND_LIKES_BY_FILM_ID = "SELECT user_id FROM like_lists WHERE film_id = ?";
+    private static final String FIND_TOP_RATED_FILMS = "    SELECT f.film_id" +
+            "    FROM films f" +
+            "    JOIN (" +
+            "          SELECT film_id, count(*) as likes" +
+            "           FROM like_lists" +
+            "           GROUP BY film_id" +
+            "           ORDER BY COUNT(*) DESC" +
+            "           LIMIT ?" +
+            "            ) fl ON f.film_id = fl.film_id " +
+            "    ORDER BY likes desc";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, RowMapper<Mpa> mapperMpa, RowMapper<Genre> mapperGenre) {
         this.jdbc = jdbc;
@@ -32,24 +62,6 @@ public class FilmDbStorage implements FilmStorage {
         this.mapperGenre = mapperGenre;
     }
 
-    private static final String FIND_ALL_FILMS_QUERY = "SELECT film_id FROM films";
-    private static final String FIND_FILM_BY_ID_QUERY = "SELECT * FROM films where film_id = ?";
-    private static final String FIND_FILM_GENRES_BY_FILM_ID = "SELECT genre_id from genre where genre_id in (select film_genre_id" +
-            " from  films_genres where film_id = ?)";
-    private static final String FIND_FILM_MPA_BY_FILM_ID = "SELECT * FROM association_rating where rating_id = " +
-            "(select film_rating_id FROM films WHERE film_id = ?)";
-    private static final String FIND_FILM_LIKES_BY_FILM_ID = "SELECT user_id FROM like_lists where film_id = ?";
-    private static final String CREATE_FILM_QUERY = "INSERT INTO films (film_name, film_description, film_releasedate, " +
-            "film_duration, film_rating_id) VALUES (?, ?, ?, ?, ?)";
-    private static final String CREATE_FILM_GENRES_QUERY = "INSERT INTO films_genres (film_id, film_genre_id) VALUES (?, ?)";
-    private static final String CHECK_MPA_EXISTANCE_QUERY = "SELECT COUNT(*) FROM association_rating where rating_id = ?";
-    private static final String CHECK_GENRE_EXISTANCE_QUERY = "SELECT COUNT(*) FROM genre where genre_id = ?";
-    private static final String UPDATE_FILM_QUERY = "UPDATE films SET film_name = ?, film_description = ?, film_releaseDate = ?," +
-            "film_duration = ?, film_rating_id = ? WHERE film_id = ?";
-    private static final String DELETE_FILMS_GENRES = "DELETE from films_genres where film_id = ?";
-    private static final String INSERT_LIKE_QUERY = "INSERT INTO like_lists (film_id, user_id) VALUES (?, ?)";
-    private static final String DELETE_LIKE_QUERY = "DELETE FROM like_lists WHERE film_id = ? AND user_id = ?";
-    private static final String FIND_LIKES_BY_FILM_ID = "SELECT user_id FROM like_lists WHERE film_id = ?";
 
     @Override
     public Collection<Film> getAll() {
@@ -127,12 +139,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public boolean filmIsPresent(Integer filmId) {
-        try {
-            Film result = jdbc.queryForObject(FIND_FILM_BY_ID_QUERY, mapper, filmId);
-            return true;
-        } catch (EmptyResultDataAccessException ignored) {
-            return false;
-        }
+        int result = jdbc.queryForObject(CHECK_FILM_EXISTANCE_QUERY, Integer.class, filmId);
+        return result > 0;
     }
 
     @Override
@@ -193,4 +201,15 @@ public class FilmDbStorage implements FilmStorage {
         ).stream().collect(Collectors.toSet());
         return filmLikes;
     }
+
+    @Override
+    public List<Film> getTopRated(Integer count) {
+        List<Integer> filmIds = jdbc.queryForList(FIND_TOP_RATED_FILMS, Integer.class, count
+        ).stream().collect(Collectors.toList());
+        List<Film> result = filmIds.stream()
+                .map(filmId -> get(filmId))
+                .collect(Collectors.toList());
+        return result;
+    }
+
 }

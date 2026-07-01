@@ -9,7 +9,7 @@ import java.util.Collection;
 
 @Service
 public class GenreService {
-    GenreDbStorage genreStorage;
+    private final GenreDbStorage genreStorage;
 
     @Autowired
     public GenreService(GenreDbStorage genreStorage) {

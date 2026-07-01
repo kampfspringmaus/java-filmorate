@@ -16,7 +16,7 @@ import java.util.Collection;
 
 @Service
 public class UserService {
-    UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
@@ -26,10 +26,6 @@ public class UserService {
     public Collection<User> getAll() {
         return userStorage.getAll();
     }
-
-    /*public User create(User user) {
-        return userStorage.create(user);
-    }*/
 
     public User create(NewUserRequest request) {
         return userStorage.create(UserMapper.mapToUser(request));
@@ -44,12 +40,6 @@ public class UserService {
         userStorage.update(user);
         return user;
     }
-
-
-
-   /* public User update(User user) {
-        return userStorage.update(user);
-    }*/
 
     public User addFriend(Integer user1, Integer user2) {
         if (user1.equals(user2)) {
@@ -87,8 +77,6 @@ public class UserService {
         if (user1 <= 0 || user2 <= 0) {
             throw new WrongArgumentException("ID пользователя должно быть положительным числом");
         }
-        //userStorage.get(user1).getFriendsList().remove(user2);
-        //userStorage.get(user2).getFriendsList().remove(user1);
         return userStorage.deleteFriend(user1, user2);
 
     }

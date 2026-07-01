@@ -9,7 +9,7 @@ import java.util.Collection;
 
 @Service
 public class MpaService {
-    MpaDbStorage mpaStorage;
+    private final MpaDbStorage mpaStorage;
 
     @Autowired
     public MpaService(MpaDbStorage mpaStorage) {

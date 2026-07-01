@@ -18,13 +18,13 @@ public class UserRowMapper implements RowMapper<User> {
         user.setLogin(resultSet.getString("user_login"));
         user.setName(resultSet.getString("user_name"));
         Timestamp ts = resultSet.getTimestamp("user_birthday");
-if (ts != null) {
-    user.setBirthday(ts.toLocalDateTime().toLocalDate());
-} else {
-    user.setBirthday(null);
-}
+        if (ts != null) {
+            user.setBirthday(ts.toLocalDateTime().toLocalDate());
+        } else {
+            user.setBirthday(null);
+        }
 
-return user;
+        return user;
 
     }
 

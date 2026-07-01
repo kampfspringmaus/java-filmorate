@@ -48,16 +48,6 @@ public class FilmService {
         this.genreStorage = genreStorage;
     }
 
-   /* public Collection<FilmResponse> getAll() {
-        Collection<Film> films = filmStorage.getAll();
-        Collection<FilmResponse> result = films.stream()
-                .map(film -> get(film.getId()))
-                .collect(Collectors.toSet());
-        return result;
-
-
-    }*/
-
     public List<FilmResponse> getAll() {
         return filmStorage.getAll().stream()
                 .map(film -> {
@@ -166,9 +156,9 @@ public class FilmService {
     }
 
     public List<FilmResponse> getTopRatedFilms(Integer count) {
-        List<FilmResponse> result = filmStorage.getAll().stream()
-                .sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
-                .limit(count)
+        List<FilmResponse> result = filmStorage.getTopRated(count).stream()
+                //.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+                //.limit(count)
                 .map(film -> {
                     Mpa mpa = mpaStorage.get(film.getMpaId());
                     Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());
@@ -177,15 +167,5 @@ public class FilmService {
                 })
                 .collect(Collectors.toList());
         return result;
-
-        /*        return filmStorage.getAll().stream()
-                .map(film -> {
-                    Mpa mpa = mpaStorage.get(film.getMpaId());
-                    Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());
-                    Set<Integer> likes = filmStorage.getLikes(film.getId());
-                    return FilmMapper.mapToFilmResponse(film, mpa, genres, likes);
-                })
-                .sorted(Comparator.comparingInt(FilmResponse::getId)) // сортируем по ID
-                .collect(Collectors.toList()); */
     }
 }

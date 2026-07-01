@@ -28,14 +28,6 @@ public class UserDbStorage implements UserStorage {
 
     protected final JdbcTemplate jdbc;
     protected final RowMapper<User> mapper;
-
-
-    public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
-        this.jdbc = jdbc;
-        this.mapper = mapper;
-    }
-
-
     private static final String FIND_ALL_USERS_QUERY = "SELECT * FROM users";
     private static final String CREATE_USER_QUERY = "INSERT INTO users(user_email, user_login, user_name, user_birthday)" +
             "VALUES (?, ?, ?, ?)";// RETURNING user_id
@@ -46,6 +38,7 @@ public class UserDbStorage implements UserStorage {
     private static final String CREATE_USER_FRIEND = "INSERT into friendships (user_id, friend_id, status_id) VALUES " +
             "(?, ?, 0)";
     private static final String DELETE_USER_FRIEND = "DELETE FROM friendships where user_id = ? and friend_id = ?";
+    private static final String CHECK_USER_EXISTANCE_QUERY = "SELECT count(*) FROM users where user_id = ?";
     private static final String CHECK_FRIENDSHIP_QUERY = "SELECT count(*) from friendships where user_id = ? and friend_id = ?";
     private static final String CONFIRM_FRIENDSHIP_QUERY = "UPDATE friendships SET status_id = 1 where user_id = ? and " +
             "friend_id = ?";
@@ -54,16 +47,17 @@ public class UserDbStorage implements UserStorage {
             "(select friend_id from friendships where user_id = ?)";
     private final String commonErrorText = "Ошибка при добавлении пользователя: %s %s";
 
-            /*"select fr.friend_id as friend_id, fs.status_description " +
-            "as status_description from friendships fr \n join friendship_status fs on (fr.status_id=fs.status_id)\n" +
-            "    where user_id = ?";*/
+    public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
+        this.jdbc = jdbc;
+        this.mapper = mapper;
+    }
 
-    //private static final String FIND
+    @Override
     public Collection<User> getAll() {
         return jdbc.query(FIND_ALL_USERS_QUERY, mapper);
     }
 
-
+    @Override
     public User create(User user) {
         if (badEmail(user)) {
             log.info(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
@@ -106,6 +100,7 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public User update(User user) {
         int rowsUpdated = jdbc.update(UPDATE_USER_QUERY, user.getEmail(), user.getLogin(), user.getName(),
                 user.getBirthday(), user.getId());
@@ -115,15 +110,15 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public boolean userIsPresent(Integer userId) {
-        try {
-            User result = jdbc.queryForObject(FIND_USER_BY_ID_QUERY, mapper, userId);
-            return true;
-        } catch (EmptyResultDataAccessException ignored) {
-            return false;
-        }
+
+        int result = jdbc.queryForObject(CHECK_USER_EXISTANCE_QUERY, Integer.class, userId);
+        return result > 0;
     }
 
+
+    @Override
     public User get(Integer userId) {
         try {
             User result = jdbc.queryForObject(FIND_USER_BY_ID_QUERY, mapper, userId);
@@ -203,7 +198,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<User>  getFriendList(Integer userId) {
+    public List<User> getFriendList(Integer userId) {
         List<User> result = jdbc.queryForList(GET_FRIENDLIST_BY_USER_ID, Integer.class, userId)
                 .stream()
                 .map(this::get)
@@ -212,8 +207,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<User>  getCommonFriends(Integer user1, Integer user2) {
-        List<User>  result = jdbc.queryForList(GET_COMMON_FRIENDS, Integer.class, user1, user2)
+    public List<User> getCommonFriends(Integer user1, Integer user2) {
+        List<User> result = jdbc.queryForList(GET_COMMON_FRIENDS, Integer.class, user1, user2)
                 .stream()
                 .map(this::get)
                 .collect(Collectors.toList());
