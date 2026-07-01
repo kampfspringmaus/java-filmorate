@@ -6,4 +6,5 @@ public class FilmErrorMessages {
     public static final String tooOldFilm = "Дата выхода фильма превосходит всё известное археологам";
     public static final String negativeFilmDuration = "Длительность фильма не может быть отрицательной";
     public static final String filmNotFound = "Фильм с id %s не найден";
+    public static final String FilmFromTheFuture = "Дата выхода фильма не может быть в будущем";
 }

@@ -30,19 +30,19 @@ public class InMemoryUserStorage implements UserStorage {
     public User create(User user) {
 
         if (!checkEmail(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
             throw new ConditionsNotMetException(UserErrorMessages.blankOrWrongEmail);
         }
         if (!checkLogin(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.emptyOrSpacesLogin));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.emptyOrSpacesLogin));
             throw new ConditionsNotMetException(UserErrorMessages.emptyOrSpacesLogin);
         }
         if (!checkName(user)) {
-            log.info("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
+            log.error("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
             user.setName(user.getLogin());
         }
         if (!checkBirthday(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.birthdayInFuture));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.birthdayInFuture));
             throw new ConditionsNotMetException(UserErrorMessages.birthdayInFuture);
         }
         int userId = getNextId();
@@ -59,7 +59,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
-            log.info(String.format(userNotFound, user.getId()));
+            log.error(String.format(userNotFound, user.getId()));
             throw new NotFoundException(String.format(userNotFound, user.getId()));
         }
         User oldUserData = users.get(user.getId());

@@ -60,19 +60,19 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User create(User user) {
         if (badEmail(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
             throw new ConditionsNotMetException(UserErrorMessages.blankOrWrongEmail);
         }
         if (badLogin(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.emptyOrSpacesLogin));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.emptyOrSpacesLogin));
             throw new ConditionsNotMetException(UserErrorMessages.emptyOrSpacesLogin);
         }
         if (badName(user)) {
-            log.info("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
+            log.error("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
             user.setName(user.getLogin());
         }
         if (badBirthday(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.birthdayInFuture));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.birthdayInFuture));
             throw new ConditionsNotMetException(UserErrorMessages.birthdayInFuture);
         }
 
@@ -176,7 +176,7 @@ public class UserDbStorage implements UserStorage {
 
         if (rowsDeleted == 0) {
 
-            log.info(String.format("Пользователи с id %s и %s не являются друзьями", userId, friendId));
+            log.error(String.format("Пользователи с id %s и %s не являются друзьями", userId, friendId));
             // throw new InternalServerException("Эти люди не являются друзьями");
         }
         return get(userId);

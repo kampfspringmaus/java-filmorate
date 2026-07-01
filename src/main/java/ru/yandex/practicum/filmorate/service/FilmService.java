@@ -69,22 +69,23 @@ public class FilmService {
     }
 
     public FilmResponse create(NewFilmRequest request) {
-        if (request.nameIsBlank()) {
-            log.info(String.format(commonErrorText, request, FilmErrorMessages.emptyFilmName));
+        /*if (request.nameIsBlank()) {
+                       log.error(String.format(commonErrorText, request, FilmErrorMessages.emptyFilmName));
             throw new ConditionsNotMetException(FilmErrorMessages.emptyFilmName);
         }
         if (request.lengthMoreThan200()) {
-            log.info(String.format(commonErrorText, request, FilmErrorMessages.tooLongDescription));
+            log.error(String.format(commonErrorText, request, FilmErrorMessages.tooLongDescription));
             throw new ConditionsNotMetException(FilmErrorMessages.tooLongDescription);
         }
+                if (request.durationIsNotPositive()) {
+            log.error(String.format(commonErrorText, request, FilmErrorMessages.negativeFilmDuration));
+            throw new ConditionsNotMetException(FilmErrorMessages.negativeFilmDuration);
+        }*/
         if (request.badReleaseDate(firstFilmDate)) {
-            log.info(String.format(commonErrorText, request, FilmErrorMessages.tooOldFilm));
+            log.error(String.format(commonErrorText, request, FilmErrorMessages.tooOldFilm));
             throw new ConditionsNotMetException(FilmErrorMessages.tooOldFilm);
         }
-        if (request.durationIsNotPositive()) {
-            log.info(String.format(commonErrorText, request, FilmErrorMessages.negativeFilmDuration));
-            throw new ConditionsNotMetException(FilmErrorMessages.negativeFilmDuration);
-        }
+
         Film film = filmStorage.create(FilmMapper.mapToFilm(request));
         Mpa mpa = mpaStorage.get(film.getMpaId());
         Collection<Genre> genres = genreStorage.getFilmGenres(film.getGenres());

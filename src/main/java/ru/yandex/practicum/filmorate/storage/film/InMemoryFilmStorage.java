@@ -33,19 +33,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film create(Film film) {
         if (!checkNameBlank(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.emptyFilmName));
+            log.error(String.format(commonErrorText, film, FilmErrorMessages.emptyFilmName));
             throw new ConditionsNotMetException(FilmErrorMessages.emptyFilmName);
         }
         if (!checkDescriptionLength(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooLongDescription));
+            log.error(String.format(commonErrorText, film, FilmErrorMessages.tooLongDescription));
             throw new ConditionsNotMetException(FilmErrorMessages.tooLongDescription);
         }
         if (!checkReleaseDate(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.tooOldFilm));
+            log.error(String.format(commonErrorText, film, FilmErrorMessages.tooOldFilm));
             throw new ConditionsNotMetException(FilmErrorMessages.tooOldFilm);
         }
         if (!checkDuration(film)) {
-            log.info(String.format(commonErrorText, film, FilmErrorMessages.negativeFilmDuration));
+            log.error(String.format(commonErrorText, film, FilmErrorMessages.negativeFilmDuration));
             throw new ConditionsNotMetException(FilmErrorMessages.negativeFilmDuration);
         }
         int filmId = getNextId();
@@ -61,7 +61,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
-            log.info(String.format(FilmErrorMessages.filmNotFound, film.getId()));
+            log.error(String.format(FilmErrorMessages.filmNotFound, film.getId()));
             throw new NotFoundException(String.format(FilmErrorMessages.filmNotFound, film.getId()));
         }
         Film oldFilmData = films.get(film.getId());
