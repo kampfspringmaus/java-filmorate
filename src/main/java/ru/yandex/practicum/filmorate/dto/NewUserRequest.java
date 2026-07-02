@@ -5,8 +5,6 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.exception.UserErrorMessages;
-import ru.yandex.practicum.filmorate.model.User;
-
 import java.time.LocalDate;
 
 @Data
