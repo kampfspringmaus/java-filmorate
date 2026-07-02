@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.exception.UserErrorMessages;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 @Data
 @Slf4j
@@ -33,19 +30,19 @@ public class InMemoryUserStorage implements UserStorage {
     public User create(User user) {
 
         if (!checkEmail(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.blankOrWrongEmail));
             throw new ConditionsNotMetException(UserErrorMessages.blankOrWrongEmail);
         }
         if (!checkLogin(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.emptyOrSpacesLogin));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.emptyOrSpacesLogin));
             throw new ConditionsNotMetException(UserErrorMessages.emptyOrSpacesLogin);
         }
         if (!checkName(user)) {
-            log.info("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
+            log.error("У пользователя " + user + " пустое имя. Вместо имени будет подставлен логин");
             user.setName(user.getLogin());
         }
         if (!checkBirthday(user)) {
-            log.info(String.format(commonErrorText, user, UserErrorMessages.birthdayInFuture));
+            log.error(String.format(commonErrorText, user, UserErrorMessages.birthdayInFuture));
             throw new ConditionsNotMetException(UserErrorMessages.birthdayInFuture);
         }
         int userId = getNextId();
@@ -62,7 +59,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
-            log.info(String.format(userNotFound, user.getId()));
+            log.error(String.format(userNotFound, user.getId()));
             throw new NotFoundException(String.format(userNotFound, user.getId()));
         }
         User oldUserData = users.get(user.getId());
@@ -89,8 +86,8 @@ public class InMemoryUserStorage implements UserStorage {
             }
         }
 
-            log.info(String.format(successfulUpdate, user.getId(), user));
-            return user;
+        log.info(String.format(successfulUpdate, user.getId(), user));
+        return user;
 
     }
 
@@ -125,8 +122,38 @@ public class InMemoryUserStorage implements UserStorage {
         return !user.getName().isBlank();
     }
 
+
     private boolean checkBirthday(User user) {
         return user.getBirthday().isBefore(LocalDate.now());
     }
 
+    @Override
+    public User addFriend(Integer user1, Integer user2) {
+        return null;
+    }
+
+    @Override
+    public User deleteFriend(Integer user1, Integer user2) {
+        return null;
+    }
+
+    @Override
+    public User confirmFriendship(Integer user1, Integer user2) {
+        return null;
+    }
+
+    @Override
+    public boolean checkFriendship(Integer user1, Integer user2) {
+        return false;
+    }
+
+    @Override
+    public List<User>  getFriendList(Integer userId) {
+       return null;
+    }
+
+    @Override
+    public List<User> getCommonFriends(Integer user1, Integer user2) {
+        return null;
+    }
 }
